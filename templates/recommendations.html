@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Recommended Lawyers</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Practice Area</th>
+            <th>Designation</th>
+            <th>Client Reviews</th>
+        </tr>
+        {% for lawyer in lawyers %}
+        <tr>
+            <td>{{ lawyer['Name'] }}</td>
+            <td>{{ lawyer['Practice_area'] }}</td>
+            <td>{{ lawyer['Designation'] }}</td>
+            <td>{{ lawyer['Client_reviews'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="/">Go Back</a>
+</body>
+</html>

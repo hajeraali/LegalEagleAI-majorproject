@@ -1,0 +1,81 @@
+body {
+    background-color: #f4f4f4; /* Light background color */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Clean and modern font */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+.container {
+    max-width: 1200px; /* Limit the container width */
+    margin: auto; /* Center the container */
+    padding: 20px; /* Padding around the container */
+}
+
+h1, h2 {
+    color: #333; /* Darker color for headings */
+    text-align: center; /* Centered headings */
+    margin-bottom: 20px; /* Spacing below headings */
+}
+
+.card {
+    margin-bottom: 20px; /* Spacing between cards */
+    transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for hover effect */
+    border-radius: 10px; /* Rounded corners */
+    border: 1px solid #007bff; /* Border color matching the header */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.card:hover {
+    transform: scale(1.05); /* Slightly enlarge card on hover */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.card-header {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white; /* Text color */
+    border-radius: 10px 10px 0 0; /* Rounded top corners */
+    font-size: 1.5rem; /* Larger font for header */
+    text-align: center; /* Centered header text */
+    padding: 15px; /* Padding inside the header */
+}
+
+.card-body {
+    background-color: #ffffff; /* White background for card body */
+    padding: 20px; /* Added padding for inner content */
+}
+
+.card-title {
+    font-weight: bold;
+    color: #007bff; /* Color for titles */
+    font-size: 1.2rem; /* Adjusted font size */
+}
+
+.card-text {
+    margin-bottom: 10px; /* Space below each text block */
+    color: #555; /* Darker color for text */
+}
+
+.review {
+    margin-top: 5px; /* Space above each review */
+    border-bottom: 1px solid #e0e0e0; /* Light separator for reviews */
+    padding: 5px 0; /* Padding for review text */
+    color: #6c757d; /* Light text color for reviews */
+    font-style: italic; /* Italics for review text */
+}
+
+.btn-primary {
+    background-color: #28a745; /* Changed button color */
+    border-color: #28a745; /* Matching border color */
+}
+
+.btn-primary:hover {
+    background-color: #218838; /* Darker green on hover */
+    border-color: #1e7e34; /* Matching border color on hover */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .card {
+        margin: 10px 0; /* Reduced margin for smaller screens */
+    }
+}

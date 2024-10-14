@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Recommendation System</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional styles for the loading animation */
+        .loading {
+            display: none; /* Initially hide the loading animation */
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10; /* Place the animation above other elements */
+            text-align: center;
+        }
+        .loading-person {
+            width: 50px; /* Width of the character */
+            animation: bounce 0.6s infinite alternate; /* Bounce animation */
+        }
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-20px); /* Bounce height */
+            }
+        }
+
+        /* Styles for cards */
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none; /* Remove default border */
+            border-radius: 10px; /* Round corners */
+            margin-bottom: 20px; /* Space between cards */
+            background-color: #f9f9f9; /* Light background color */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        }
+        .card:hover {
+            transform: translateY(-10px); /* Lift card on hover */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow */
+        }
+        .card-header {
+            background-color: #4273b3; /* Header background color */
+            color: white; /* Text color */
+            font-weight: bold; /* Bold text */
+            border-top-left-radius: 25px; /* Round top corners */
+            border-top-right-radius: 25px; /* Round top corners */
+        }
+        .review {
+            background-color: #d1dbe7; /* Light green background for reviews */
+            padding: 5px 10px; /* Padding */
+            border-radius: 5px; /* Round corners */
+            margin: 5px 0; /* Space between reviews */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Lawyer Recommendation System</h1>
+        <form method="POST" enctype="multipart/form-data" class="mb-4" onsubmit="showLoadingAnimation()">
+            <div class="form-group">
+                <label for="query">Enter your query:</label>
+                <input type="text" class="form-control" id="query" name="query">
+            </div>
+            <div class="form-group">
+                <label for="file">Upload a legal document:</label>
+                <input type="file" class="form-control-file" id="file" name="file" accept=".docx,.pdf">
+            </div>
+            <button type="submit" class="btn btn-primary">Get Recommendations</button>
+        </form>
+
+        <div class="loading">
+            <div class="loading-person">
+                <div style="font-size: 50px;">👨‍⚖️</div>
+                <div>Loading...</div>
+            </div>
+        </div>
+
+        {% if recommended_lawyers is not none %}
+            <h2 class="mt-5">Recommended Lawyers:</h2>
+            <div class="row">
+                {% for lawyer in recommended_lawyers.iterrows() %}
+                    <div class="col-md-4"> <!-- Card in a responsive grid -->
+                        <div class="card">
+                            <div class="card-header">
+                                {{ lawyer[1]['Lawyer_name'] }}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ lawyer[1]['Practice_area'] }}</h5>
+                                <p class="card-text"><strong>Firm Name:</strong> {{ lawyer[1]['Firm_name'] }}</p>
+                                <p class="card-text"><strong>Firm Size:</strong> {{ lawyer[1]['Firm_size'] }}</p>
+                                <p class="card-text"><strong>Target Audience:</strong> {{ lawyer[1]['Target_audience'] }}</p>
+                                <p class="card-text"><strong>Designation:</strong> {{ lawyer[1]['Designation'] }}</p>
+                                <p class="card-text"><strong>Years of Experience:</strong> {{ lawyer[1]['Years_of_Experience'] }}</p>
+                                <p class="card-text"><strong>Total Cases:</strong> {{ lawyer[1]['Total_cases'] }}</p>
+                                <p class="card-text"><strong>Successful Cases:</strong> {{ lawyer[1]['Successful_cases'] }}</p>
+                                <p class="card-text"><strong>Affiliation:</strong> {{ lawyer[1]['Affiliation'] }}</p>
+                                <p class="card-text"><strong>Client Reviews:</strong></p>
+                                {% for review in lawyer[1]['Client_reviews'].split('|') %}
+                                    <div class="review">{{ review.strip() }}</div>
+                                {% endfor %}
+                                <p class="card-text"><strong>Nominal Fees per Hearing:</strong> {{ lawyer[1]['Nominal_fees_per_hearing'] }}</p>
+                                <p class="card-text"><strong>Bar Council ID:</strong> {{ lawyer[1]['Bar_Council_ID'] }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function showLoadingAnimation() {
+            document.querySelector('.loading').style.display = 'block'; // Show loading animation
+        }
+    </script>
+</body>
+</html>

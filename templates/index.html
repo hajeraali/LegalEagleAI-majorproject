@@ -62,17 +62,58 @@
     <div class="container mt-5">
         <h1 class="text-center">Lawyer Recommendation System</h1>
         <form method="POST" enctype="multipart/form-data" class="mb-4" onsubmit="showLoadingAnimation()">
+            
             <div class="form-group">
                 <label for="query">Enter your query:</label>
                 <input type="text" class="form-control" id="query" name="query">
             </div>
             <div class="form-group">
-                <label for="file">Upload a legal document:</label>
-                <input type="file" class="form-control-file" id="file" name="file" accept=".docx,.pdf">
+                <label for="upload">Upload a legal document:</label>
+                <input type="file" class="form-control-file" id="upload" name="upload" accept=".pdf,.doc,.docx">
             </div>
+            <div class="form-group">
+                <label for="price_range">Select Expected Salary Range (₹):</label>
+                <input type="range" class="form-control-range" id="price_range" name="price_range" min="10000" max="5000000" step="10000" value="1000000" oninput="updatePriceRange(this.value)">
+                <div class="d-flex justify-content-between">
+                    <span>Minimum: ₹<span id="min_price_label">10,000</span></span>
+                    <span>Maximum: ₹<span id="max_price_label">50,00,000</span></span>
+                </div>
+                <input type="hidden" id="min_price" name="min_price" value="10000">
+                <input type="hidden" id="max_price" name="max_price" value="5000000">
+            </div>
+        
+            <div class="form-group">
+                <label for="sort_order">Sort by Nominal Fees:</label>
+                <select class="form-control" id="sort_order" name="sort_order">
+                    <option value="">Select...</option>
+                    <option value="low_to_high">Low to High</option>
+                    <option value="high_to_low">High to Low</option>
+                </select>
+            </div>
+        
             <button type="submit" class="btn btn-primary">Get Recommendations</button>
         </form>
+        
+            
+        
+        <script>
+          function updatePriceRange(value) {
+    let maxValue = Math.min(5000000, value); // Ensure max doesn't exceed ₹50,00,000
 
+    document.getElementById('min_price').value = 10000; // Keep min price fixed at ₹10,000
+    document.getElementById('max_price').value = Math.round(maxValue); // Update max price
+
+    document.getElementById('min_price_label').innerText = "10,000"; // Keep min label fixed
+    document.getElementById('max_price_label').innerText = maxValue.toLocaleString('en-IN'); // Update max label
+}
+
+// Initialize the labels when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    updatePriceRange(1000000); // Initial range for ₹10,00,000
+});
+</script>
+        
+        
         <div class="loading">
             <div class="loading-person">
                 <div style="font-size: 50px;">👨‍⚖️</div>

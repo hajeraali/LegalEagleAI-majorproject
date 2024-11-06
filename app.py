@@ -9,6 +9,10 @@ from nltk.stem import PorterStemmer
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader
 import docx
+from datetime import datetime, timedelta 
+import psycopg2
+from psycopg2 import sql
+from flask import Flask, request, jsonify
 
 # Download NLTK resources
 nltk.download('punkt')
@@ -157,6 +161,95 @@ def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None):
         recommendations = recommendations.sort_values(by='Nominal_fees_per_hearing', ascending=False)
 
     return recommendations
+
+@app.route('/booking.html')
+def booking():
+    return render_template('booking.html')  # Ensure the file is in the templates folder
+
+# Database configuration (replace karo with ur actual database credentials)
+DB_HOST = 'localhost'
+DB_NAME = 'mydatabase'
+DB_USER = 'postgres'
+DB_PASSWORD = '123'
+
+# Connect to PostgreSQL
+def connect_db():
+    return psycopg2.connect(
+        host=DB_HOST,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD
+    )
+
+# Function to create the appointments table if it doesn’t exist
+def create_table():
+    conn = connect_db()
+    cur = conn.cursor()
+    create_table_query = """
+    CREATE TABLE IF NOT EXISTS public.appointments (
+        id SERIAL PRIMARY KEY,
+        appointment_date DATE NOT NULL,
+        client_name VARCHAR(100) NOT NULL,
+        client_email VARCHAR(100) NOT NULL,
+        appointment_time TIME NOT NULL,
+        case_details TEXT NOT NULL
+    );
+    """
+    cur.execute(create_table_query)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+# Call create_table when the app starts
+create_table()
+
+# Route to handle form submissions
+@app.route('/book_appointment', methods=['POST'])
+def book_appointment():
+    data = request.json
+    appointment_date = data['appointmentDate']
+    client_name = data['clientName']
+    client_email = data['clientEmail']
+    appointment_time = data['appointmentTime']
+    case_details = data['caseDetails']
+
+    # Parse the date and time to a datetime object
+    appointment_datetime = datetime.strptime(f"{appointment_date} {appointment_time}", "%Y-%m-%d %H:%M")
+
+    # Calculate the end time of the 30-minute appointment
+    appointment_end_time = appointment_datetime + timedelta(minutes=30)
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    # Check for overlapping appointments
+    check_query = """
+    SELECT * FROM public.appointments
+    WHERE appointment_date = %s
+    AND (
+        (appointment_time <= %s AND appointment_time + interval '30 minutes' > %s)
+        OR (appointment_time >= %s AND appointment_time < %s)
+    );
+    """
+    cur.execute(check_query, (appointment_date, appointment_datetime.time(), appointment_datetime.time(), appointment_datetime.time(), appointment_end_time.time()))
+    overlapping_appointments = cur.fetchall()
+
+    if overlapping_appointments:
+        cur.close()
+        conn.close()
+        return jsonify({"message": "This time slot is already booked. Please choose another time."}), 400
+
+    # If no overlap, insert the new appointment
+    insert_query = """
+    INSERT INTO public.appointments (appointment_date, client_name, client_email, appointment_time, case_details)
+    VALUES (%s, %s, %s, %s, %s);
+    """
+    cur.execute(insert_query, (appointment_date, client_name, client_email, appointment_time, case_details))
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return jsonify({"message": "Appointment booked successfully!"})
 
 if __name__ == '__main__':
     app.run(debug=True)

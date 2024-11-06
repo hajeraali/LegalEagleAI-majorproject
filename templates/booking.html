@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment</title>
+    <link rel="stylesheet" href="static/booking.css">
+    
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <div class="booking-container">
+        <h2>Book an Appointment</h2>
+
+        <!-- Form to select a date and other details -->
+        <form id="appointmentForm">
+            <label for="appointmentDate">Select a Date:</label>
+            <input type="text" id="appointmentDate" class="date-picker" placeholder="Select a date" required>
+
+            <!-- Additional fields that show after date selection -->
+            <label for="clientName">Name:</label>
+            <input type="text" id="clientName" placeholder="Enter your name" required>
+
+            <label for="clientEmail">Email:</label>
+            <input type="email" id="clientEmail" placeholder="Enter your email" required>
+
+            <label for="appointmentTime">Select a Time:</label>
+            <input type="time" id="appointmentTime" required>
+
+            <label for="caseDetails">Case Details:</label>
+            <textarea id="caseDetails" placeholder="Enter relevant information about your case" required></textarea>
+
+            <button type="submit">Confirm Appointment</button>
+        </form>
+    </div>
+
+    <!-- Flatpickr JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <script>
+        // Initialize Flatpickr on the appointmentDate input
+        flatpickr("#appointmentDate", {
+            minDate: "today",  // Prevents past dates
+        });
+
+        // Handle form submission
+        document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent page refresh
+            
+            // Collect form data
+            const appointmentData = {
+                appointmentDate: document.getElementById('appointmentDate').value,
+                clientName: document.getElementById('clientName').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                appointmentTime: document.getElementById('appointmentTime').value,
+                caseDetails: document.getElementById('caseDetails').value
+            };
+
+            try {
+                // Send data to Flask backend
+                const response = await fetch('/book_appointment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(appointmentData)
+                });
+
+                if (response.ok) {
+                    alert("Appointment booked successfully!");
+                    document.getElementById('appointmentForm').reset();
+                } else {
+                    const errorData = await response.json();
+                    alert("Error booking appointment: " + errorData.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Error booking appointment. Please try again.");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -146,6 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 {% endfor %}
                                 <p class="card-text"><strong>Nominal Fees per Hearing:</strong> {{ lawyer[1]['Nominal_fees_per_hearing'] }}</p>
                                 <p class="card-text"><strong>Bar Council ID:</strong> {{ lawyer[1]['Bar_Council_ID'] }}</p>
+                                 <!-- Book Appointment Button -->
+                                 <button class="btn btn-primary mt-3" data-lawyer-name="{{ lawyer[1]['Lawyer_name'] }}" onclick="bookAppointment(this)">Book Appointment</button>
+
                             </div>
                         </div>
                     </div>
@@ -153,6 +156,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         {% endif %}
     </div>
+    
+    <script>
+        function bookAppointment(button) {
+        const lawyerName = button.getAttribute('data-lawyer-name');
+        window.location.href = "booking.html?lawyer=" + encodeURIComponent(lawyerName);
+    }
+
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

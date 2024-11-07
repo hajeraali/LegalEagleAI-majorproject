@@ -6,57 +6,7 @@
     <title>Lawyer Recommendation System</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Additional styles for the loading animation */
-        .loading {
-            display: none; /* Initially hide the loading animation */
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10; /* Place the animation above other elements */
-            text-align: center;
-        }
-        .loading-person {
-            width: 50px; /* Width of the character */
-            animation: bounce 0.6s infinite alternate; /* Bounce animation */
-        }
-        @keyframes bounce {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(-20px); /* Bounce height */
-            }
-        }
-
-        /* Styles for cards */
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none; /* Remove default border */
-            border-radius: 10px; /* Round corners */
-            margin-bottom: 20px; /* Space between cards */
-            background-color: #f9f9f9; /* Light background color */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
-        }
-        .card:hover {
-            transform: translateY(-10px); /* Lift card on hover */
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow */
-        }
-        .card-header {
-            background-color: #4273b3; /* Header background color */
-            color: white; /* Text color */
-            font-weight: bold; /* Bold text */
-            border-top-left-radius: 25px; /* Round top corners */
-            border-top-right-radius: 25px; /* Round top corners */
-        }
-        .review {
-            background-color: #d1dbe7; /* Light green background for reviews */
-            padding: 5px 10px; /* Padding */
-            border-radius: 5px; /* Round corners */
-            margin: 5px 0; /* Space between reviews */
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container mt-5">

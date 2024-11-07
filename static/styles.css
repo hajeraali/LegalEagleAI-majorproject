@@ -1,81 +1,125 @@
+/* General Body Styling */
+/* General Body Styling */
 body {
-    background-color: #f4f4f4; /* Light background color */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Clean and modern font */
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #e0e0e0;  /* Slightly darker background */
+    color: #333;
 }
 
+/* Container and Header */
 .container {
-    max-width: 1200px; /* Limit the container width */
-    margin: auto; /* Center the container */
-    padding: 20px; /* Padding around the container */
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
 }
-
 h1, h2 {
-    color: #333; /* Darker color for headings */
-    text-align: center; /* Centered headings */
-    margin-bottom: 20px; /* Spacing below headings */
+    font-family: 'Montserrat', sans-serif;
+    color: #2d3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
 }
 
+/* Form Styling */
+form {
+    background-color: #ffffff71;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.form-group label {
+    font-weight: 600;
+    color: #2d3e50;
+}
+.form-control, .form-control-file, .form-control-range, .form-control select {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.form-control:focus {
+    border-color: #4273b3;
+    box-shadow: 0 0 4px rgba(66, 115, 179, 0.3);
+}
+
+/* Button Styling */
+button, .btn-primary {
+    background-color: rgb(27, 27, 102);
+    border-color: rgb(27, 27, 102);
+    color: #fff;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+button:hover, .btn-primary:hover {
+    background-color: #355a8e;
+    border-color: #355a8e;
+}
+
+/* Price Range Display */
+#min_price_label, #max_price_label {
+    font-weight: bold;
+    color: #555;
+}
+
+/* Card Styling */
 .card {
-    margin-bottom: 20px; /* Spacing between cards */
-    transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for hover effect */
-    border-radius: 10px; /* Rounded corners */
-    border: 1px solid #007bff; /* Border color matching the header */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.card:hover {
-    transform: scale(1.05); /* Slightly enlarge card on hover */
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    border: none;
+    border-radius: 10px;
+    background-color: #f9f9f9; /* Keep cards lighter for contrast */
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-header {
-    background-color: #007bff; /* Bootstrap primary color */
-    color: white; /* Text color */
-    border-radius: 10px 10px 0 0; /* Rounded top corners */
-    font-size: 1.5rem; /* Larger font for header */
-    text-align: center; /* Centered header text */
-    padding: 15px; /* Padding inside the header */
+    background-color: #2d3e50; /* Darker shade for consistency */
+    color: #ffffff;
+    font-weight: bold;
+    padding: 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
-
-.card-body {
-    background-color: #ffffff; /* White background for card body */
-    padding: 20px; /* Added padding for inner content */
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .card-title {
+    color: #333;
     font-weight: bold;
-    color: #007bff; /* Color for titles */
-    font-size: 1.2rem; /* Adjusted font size */
 }
-
 .card-text {
-    margin-bottom: 10px; /* Space below each text block */
-    color: #555; /* Darker color for text */
+    color: #555;
 }
 
+/* Review Section */
 .review {
-    margin-top: 5px; /* Space above each review */
-    border-bottom: 1px solid #e0e0e0; /* Light separator for reviews */
-    padding: 5px 0; /* Padding for review text */
-    color: #6c757d; /* Light text color for reviews */
-    font-style: italic; /* Italics for review text */
+    background-color: #e0eaf6;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    color: #2d3e50;
+    font-style: italic; /* Italicized reviews */
 }
 
-.btn-primary {
-    background-color: #28a745; /* Changed button color */
-    border-color: #28a745; /* Matching border color */
+/* Loading Animation */
+.loading {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    text-align: center;
 }
-
-.btn-primary:hover {
-    background-color: #218838; /* Darker green on hover */
-    border-color: #1e7e34; /* Matching border color on hover */
+.loading-person {
+    font-size: 50px;
+    color:#2d3e50;
+    animation: bounce 0.6s infinite alternate;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
 }
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-    .card {
-        margin: 10px 0; /* Reduced margin for smaller screens */
-    }
-}
+@keyframes bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-20px); }
+}  

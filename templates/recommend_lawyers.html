@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Recommendation System</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Lawyer Recommendation System</h1>
+        <form method="POST" enctype="multipart/form-data" class="mb-4" onsubmit="showLoadingAnimation()">
+            
+            <div class="form-group">
+                <label for="query">Enter your query:</label>
+                <input type="text" class="form-control" id="query" name="query">
+            </div>
+            <div class="form-group">
+                <label for="upload">Upload a legal document:</label>
+                <input type="file" class="form-control-file" id="upload" name="upload" accept=".pdf,.doc,.docx">
+            </div>
+            <div class="form-group">
+                <label for="price_range">Select Expected Salary Range (₹):</label>
+                <input type="range" class="form-control-range" id="price_range" name="price_range" min="10000" max="5000000" step="10000" value="1000000" oninput="updatePriceRange(this.value)">
+                <div class="d-flex justify-content-between">
+                    <span>Minimum: ₹<span id="min_price_label">10,000</span></span>
+                    <span>Maximum: ₹<span id="max_price_label">50,00,000</span></span>
+                </div>
+                <input type="hidden" id="min_price" name="min_price" value="10000">
+                <input type="hidden" id="max_price" name="max_price" value="5000000">
+            </div>
+        
+            <div class="form-group">
+                <label for="sort_order">Sort by Nominal Fees:</label>
+                <select class="form-control" id="sort_order" name="sort_order">
+                    <option value="">Select...</option>
+                    <option value="low_to_high">Low to High</option>
+                    <option value="high_to_low">High to Low</option>
+                </select>
+            </div>
+        
+            <button type="submit" class="btn btn-primary">Get Recommendations</button>
+        </form>
+        
+            
+        
+        <script>
+          function updatePriceRange(value) {
+    let maxValue = Math.min(5000000, value); // Ensure max doesn't exceed ₹50,00,000
+
+    document.getElementById('min_price').value = 10000; // Keep min price fixed at ₹10,000
+    document.getElementById('max_price').value = Math.round(maxValue); // Update max price
+
+    document.getElementById('min_price_label').innerText = "10,000"; // Keep min label fixed
+    document.getElementById('max_price_label').innerText = maxValue.toLocaleString('en-IN'); // Update max label
+}
+
+// Initialize the labels when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    updatePriceRange(1000000); // Initial range for ₹10,00,000
+});
+</script>
+        
+        
+        <div class="loading">
+            <div class="loading-person">
+                <div style="font-size: 50px;">👩🏻‍⚖️</div>
+                <div>Loading...</div>
+            </div>
+        </div>
+
+        {% if recommended_lawyers is not none %}
+            <h2 class="mt-5">Recommended Lawyers:</h2>
+            <div class="row">
+                {% for lawyer in recommended_lawyers.iterrows() %}
+                    <div class="col-md-4"> <!-- Card in a responsive grid -->
+                        <div class="card">
+                            <div class="card-header">
+                                {{ lawyer[1]['Lawyer_name'] }}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ lawyer[1]['Practice_area'] }}</h5>
+                                <p class="card-text"><strong>Firm Name:</strong> {{ lawyer[1]['Firm_name'] }}</p>
+                                <p class="card-text"><strong>Firm Size:</strong> {{ lawyer[1]['Firm_size'] }}</p>
+                                <p class="card-text"><strong>Target Audience:</strong> {{ lawyer[1]['Target_audience'] }}</p>
+                                <p class="card-text"><strong>Designation:</strong> {{ lawyer[1]['Designation'] }}</p>
+                                <p class="card-text"><strong>Years of Experience:</strong> {{ lawyer[1]['Years_of_Experience'] }}</p>
+                                <p class="card-text"><strong>Total Cases:</strong> {{ lawyer[1]['Total_cases'] }}</p>
+                                <p class="card-text"><strong>Successful Cases:</strong> {{ lawyer[1]['Successful_cases'] }}</p>
+                                <p class="card-text"><strong>Affiliation:</strong> {{ lawyer[1]['Affiliation'] }}</p>
+                                <p class="card-text"><strong>Client Reviews:</strong></p>
+                                {% for review in lawyer[1]['Client_reviews'].split('|') %}
+                                    <div class="review">{{ review.strip() }}</div>
+                                {% endfor %}
+                                <p class="card-text"><strong>Nominal Fees per Hearing:</strong> {{ lawyer[1]['Nominal_fees_per_hearing'] }}</p>
+                                <p class="card-text"><strong>Bar Council ID:</strong> {{ lawyer[1]['Bar_Council_ID'] }}</p>
+                                 <!-- Book Appointment Button -->
+                                 <button class="btn btn-primary mt-3" data-lawyer-name="{{ lawyer[1]['Lawyer_name'] }}" onclick="bookAppointment(this)">Book Appointment</button>
+
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function bookAppointment(button) {
+        const lawyerName = button.getAttribute('data-lawyer-name');
+        window.location.href = "booking.html?lawyer=" + encodeURIComponent(lawyerName);
+    }
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function showLoadingAnimation() {
+            document.querySelector('.loading').style.display = 'block'; // Show loading animation
+        }
+    </script>
+</body>
+</html>

@@ -90,8 +90,12 @@ def extract_text_from_file(file):
         return text
     return ''
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
+    return render_template('index.html')  # The new landing page
+
+@app.route('/recommend_lawyers', methods=['GET', 'POST'])
+def recommend_lawyers_route():
     lawyer_recommendations = None
     sort_order = None  # Initialize sort order variable
     if request.method == 'POST':
@@ -121,7 +125,7 @@ def index():
         if user_query:
             lawyer_recommendations = recommend_lawyers(user_query, min_price, max_price, sort_order)
 
-    return render_template('index.html', recommended_lawyers=lawyer_recommendations)
+    return render_template('recommend_lawyers.html', recommended_lawyers=lawyer_recommendations)
 
 def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None):
     # Preprocess the query

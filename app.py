@@ -94,6 +94,18 @@ def extract_text_from_file(file):
 def index():
     return render_template('index.html')  # The new landing page
 
+@app.route('/client_signup')
+def client_signup():
+    return render_template('client_signup.html')
+
+@app.route('/client_login')
+def client_login():
+    return render_template('client_login.html')
+
+@app.route('/afterlogin')
+def afterlogin():
+    return render_template('afterlogin.html')
+
 @app.route('/recommend_lawyers', methods=['GET', 'POST'])
 def recommend_lawyers_route():
     lawyer_recommendations = None

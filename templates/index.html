@@ -54,7 +54,7 @@
                       <p><button class="btn-primary px-3 py-2">Login</button></p>
                       <div class="dropdown-content">
                         <a href="#">As Lawyer</a>
-                        <a href="#">As Client</a>
+                        <a href="{{ url_for('client_login') }}">As Client</a>
                       </div>
                     </div>
                   </li>
@@ -63,7 +63,7 @@
                       <p><button class="btn-secondary px-3 py-2">Signup</button></p>
                       <div class="dropdown-content">
                         <a href="#">As Lawyer</a>
-                        <a href="#">As Client</a>
+                        <a href="{{ url_for('client_signup') }}">As Client</a>
                       </div>
                     </div>
                   </li>
@@ -90,7 +90,7 @@
           <div class="col-md-8 text-center" data-aos="fade-up" data-aos-delay="400">
             <h1 class="mb-4">Effortless Legal Guidance at Your Fingertips</h1>
             <p class="mb-5">Navigating legal matters can be overwhelming, but finding the right lawyer shouldn't be. Whether it's a contract, dispute, or legal paperwork, we simplify the process by connecting you with the best lawyers for your specific needs.</p>
-            <p><a href="{{ url_for('recommend_lawyers_route') }}" class="btn btn-primary px-5 py-3">GET STARTED</a></p>
+            <p><a href="{{ url_for('client_signup') }}" class="btn btn-primary px-5 py-3">GET STARTED</a></p>
           </div>
         </div>
       </div>

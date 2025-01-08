@@ -45,7 +45,7 @@ window.addEventListener('load', () => {
             email: email
           });
           // Redirect to a new page after signup
-          window.location.href = "afterlogin.html"; // Change "welcome.html" to your desired page
+          window.location.href = afterloginUrl; // Change "welcome.html" to your desired page
         })
         .catch((error) => {
           alert(error.message);
@@ -61,7 +61,8 @@ window.addEventListener('load', () => {
         .then(() => {
           
           // Redirect to a login or home page after logout
-          window.location.href = "index.html"; // Change "index.html" to your desired page
+          window.location.href = indexUrl;
+          
         })
         .catch((error) => {
           alert(error.message);

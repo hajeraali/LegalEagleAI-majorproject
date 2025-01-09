@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 import psycopg2
 from psycopg2 import sql
 from flask import Flask, request, jsonify
+from dotenv import load_dotenv
 
 # Download NLTK resources
 nltk.download('punkt')
@@ -90,6 +91,19 @@ def extract_text_from_file(file):
         return text
     return ''
 
+load_dotenv()
+@app.route('/get-firebase-config', methods=['GET'])
+def get_firebase_config():
+    # Return the Firebase configuration to the frontend
+    return jsonify({
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID")
+    })
+    
 @app.route('/')
 def index():
     return render_template('index.html')  # The new landing page

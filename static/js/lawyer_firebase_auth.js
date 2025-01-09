@@ -2,21 +2,28 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+let firebaseConfig;
 
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyAnHmvZwVaGuNrHoujwSw5ArdGc64Vk4lM",
-    authDomain: "legaleagle-auth.firebaseapp.com",
-    projectId: "legaleagle-auth",
-    storageBucket: "legaleagle-auth.firebasestorage.app",
-    messagingSenderId: "174717013512",
-    appId: "1:174717013512:web:0712b82ba626a953b20bbd"
-};
+// Fetch the Firebase configuration from the Flask backend
+fetch('/get-firebase-config')
+  .then(response => response.json())
+  .then(data => {
+    // Initialize Firebase with the configuration returned from the server
+    firebaseConfig = {
+      apiKey: data.apiKey,
+      authDomain: data.authDomain,
+      projectId: data.projectId,
+      storageBucket: data.storageBucket,
+      messagingSenderId: data.messagingSenderId,
+      appId: data.appId
+    };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const auth = getAuth(app);
+    // Initialize Firebase
+    initializeApp(firebaseConfig);
+  })
+  .catch(error => {
+    console.error('Error fetching Firebase configuration:', error);
+  });
 
 // Load lawyer data from the uploaded dataset
 let lawyerData = [];

@@ -1,3 +1,3 @@
 # LegalEagleAI-majorproject
-run "pip install python-dotenv" 
-Place the .env file in root directory to run.
+Run "pip install python-dotenv"
+and place the .env file in root directory to run.

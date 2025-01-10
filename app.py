@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 import psycopg2
 from psycopg2 import sql
 from flask import Flask, request, jsonify
+from flask import Flask, render_template, g
 from dotenv import load_dotenv
 
 # Download NLTK resources
@@ -90,19 +91,19 @@ def extract_text_from_file(file):
         text = '\n'.join([para.text for para in doc.paragraphs])
         return text
     return ''
-
-load_dotenv()
-@app.route('/get-firebase-config', methods=['GET'])
-def get_firebase_config():
-    # Return the Firebase configuration to the frontend
-    return jsonify({
-        "apiKey": os.getenv("FIREBASE_API_KEY"),
-        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
-        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
-        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
-        "appId": os.getenv("FIREBASE_APP_ID")
-    })
+    
+load_dotenv()    
+# Load Firebase config and make it globally available before each request
+@app.before_request
+def load_firebase_config():
+    g.firebase_config = {
+        'firebase_api_key': os.getenv('FIREBASE_API_KEY'),
+        'firebase_auth_domain': os.getenv('FIREBASE_AUTH_DOMAIN'),
+        'firebase_project_id': os.getenv('FIREBASE_PROJECT_ID'),
+        'firebase_storage_bucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
+        'firebase_messaging_sender_id': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+        'firebase_app_id': os.getenv('FIREBASE_APP_ID')
+    }
     
 @app.route('/')
 def index():
@@ -110,15 +111,27 @@ def index():
 
 @app.route('/client_signup')
 def client_signup():
-    return render_template('client_signup.html')
+    return render_template('client_signup.html', **g.firebase_config)
 
 @app.route('/client_login')
 def client_login():
-    return render_template('client_login.html')
+    return render_template('client_login.html', **g.firebase_config)
 
 @app.route('/afterlogin')
 def afterlogin():
-    return render_template('afterlogin.html')
+    return render_template('afterlogin.html', **g.firebase_config)
+
+@app.route('/lawyer_login.html')
+def lawyer_login():
+    return render_template('lawyer_login.html', **g.firebase_config)
+
+@app.route('/lawyer_signup.html')
+def lawyer_signup():
+    return render_template('lawyer_signup.html', **g.firebase_config)
+
+@app.route('/dashboard.html')
+def dashboard():
+    return render_template('dashboard.html', **g.firebase_config)
 
 @app.route('/recommend_lawyers', methods=['GET', 'POST'])
 def recommend_lawyers_route():

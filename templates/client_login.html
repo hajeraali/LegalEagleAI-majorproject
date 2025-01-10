@@ -4,7 +4,7 @@
       <meta charset="utf-8">
       <title>Client Login</title>
       <link rel="stylesheet" href="{{ url_for('static', filename='css/loginandsignup.css') }}">
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
    <script type="module" src="{{ url_for('static', filename='js/firebase_Auth.js') }}"></script>
    </head>
    <body>
@@ -65,25 +65,15 @@
          import { getDatabase, update, ref } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
          import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-         fetch('/get-firebase-config')
-  .then(response => response.json())
-  .then(data => {
-    // Initialize Firebase with the configuration returned from the server
-    const firebaseConfig = {
-      apiKey: data.apiKey,
-      authDomain: data.authDomain,
-      projectId: data.projectId,
-      storageBucket: data.storageBucket,
-      messagingSenderId: data.messagingSenderId,
-      appId: data.appId
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-  })
-  .catch(error => {
-    console.error('Error fetching Firebase configuration:', error);
-  });
+         // Your web app's Firebase configuration
+         const firebaseConfig = {
+            apiKey: "{{ firebase_api_key }}",
+            authDomain: "{{ firebase_auth_domain }}",
+            projectId: "{{ firebase_project_id }}",
+            storageBucket: "{{ firebase_storage_bucket }}",
+            messagingSenderId: "{{ firebase_messaging_sender_id }}",
+            appId: "{{ firebase_app_id }}"
+         };
 
          // Initialize Firebase
          const app = initializeApp(firebaseConfig);
@@ -104,7 +94,7 @@
                         last_login: dt
                      });
                      // Redirect to another page after successful login
-                     window.location.href = "{{ url_for('afterlogin') }}";
+                     window.location.href = "{{ url_for('afterlogin') }}"; // Change "dashboard.html" to your desired page
                  })
                  .catch((error) => {
                      const errorMessage = error.message;

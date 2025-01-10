@@ -53,7 +53,7 @@
                     <div class="dropdown">
                       <p><button class="btn-primary px-3 py-2">Login</button></p>
                       <div class="dropdown-content">
-                        <a href="#">As Lawyer</a>
+                        <a href="{{ url_for('lawyer_login') }}">As Lawyer</a>
                         <a href="{{ url_for('client_login') }}">As Client</a>
                       </div>
                     </div>
@@ -62,7 +62,7 @@
                     <div class="dropdown">
                       <p><button class="btn-secondary px-3 py-2">Signup</button></p>
                       <div class="dropdown-content">
-                        <a href="#">As Lawyer</a>
+                        <a href="{{ url_for('lawyer_signup') }}">As Lawyer</a>
                         <a href="{{ url_for('client_signup') }}">As Client</a>
                       </div>
                     </div>

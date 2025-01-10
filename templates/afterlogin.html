@@ -49,6 +49,7 @@
                     <p><input type="submit" class="btn-primary px-3 py-2" id="logout" value="LOGOUT"></p></li>
                 </ul>
               </nav>
+              </div>
             </div>
 
           </div>
@@ -78,6 +79,14 @@
     <script>
       // Pass the URL dynamically from Flask to a global JavaScript variable
       const indexUrl = "{{ url_for('index') }}";
+      window.firebaseConfig = {
+        apiKey: "{{ firebase_api_key }}",
+        authDomain: "{{ firebase_auth_domain }}",
+        projectId: "{{ firebase_project_id }}",
+        storageBucket: "{{ firebase_storage_bucket }}",
+        messagingSenderId: "{{ firebase_messaging_sender_id }}",
+        appId: "{{ firebase_app_id }}"
+    };
     </script>
     <script type="module" src="{{ url_for('static', filename='js/firebase_Auth.js') }}"></script>
   </body>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>Lawyer login</title>
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/loginandsignup.css') }}">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+   </head>
+   <body>
+      <div class="bg-img" style="background-image: url('static/images/bg.jpg'); ">
+         <div class="content">
+            <header>Login as Lawyer</header>
+            <form action="#">
+               <div class="field">
+                  <span class="fa fa-user"></span>
+                  <input type="email" id="loginEmail" required placeholder="Email">
+               </div>
+               <div class="field space">
+                  <span class="fas fa-id-card"></span>
+                  <input type="text" id="loginBarCouncilID" required placeholder="Bar council ID">
+               </div>
+               <div class="field space">
+                  <span class="fa fa-lock"></span>
+                  <input type="password" id="loginPassword" class="pass-key" required placeholder="Password">
+                  <span class="show">SHOW</span>
+               </div>
+               <div class="pass">
+                  <a href="#">Forgot Password?</a>
+               </div>
+               <div class="field">
+                  <input type="submit" id="login" value="LOGIN">
+               </div>
+            </form>
+            <div class="login">
+               Or login with
+            </div>
+            <div class="links">
+               <div class="facebook">
+                  <i class="fab fa-facebook-f"><span>Facebook</span></i>
+               </div>
+               <div class="instagram">
+                  <i class="fab fa-google"><span>Google</span></i>
+               </div>
+            </div>
+            <div class="signup">
+               Don't have account?
+               <a href="{{ url_for('lawyer_signup') }}">Signup Now</a>
+            </div>
+         </div>
+      </div>
+      <script>
+         const pass_field = document.querySelector('.pass-key');
+         const showBtn = document.querySelector('.show');
+         showBtn.addEventListener('click', function(){
+          if(pass_field.type === "password"){
+            pass_field.type = "text";
+            showBtn.textContent = "HIDE";
+            showBtn.style.color = "#3498db";
+          }else{
+            pass_field.type = "password";
+            showBtn.textContent = "SHOW";
+            showBtn.style.color = "#222";
+          }
+         });
+
+         const dashboardUrl = "{{ url_for('dashboard') }}"; 
+         window.firebaseConfig = {
+             apiKey: "{{ firebase_api_key }}",
+             authDomain: "{{ firebase_auth_domain }}",
+             projectId: "{{ firebase_project_id }}",
+             storageBucket: "{{ firebase_storage_bucket }}",
+             messagingSenderId: "{{ firebase_messaging_sender_id }}",
+             appId: "{{ firebase_app_id }}"
+         };
+     
+      </script>
+      <script type="module" src="{{ url_for('static', filename='js/lawyer_firebase_auth.js') }}" ></script>
+   </body>
+</html>

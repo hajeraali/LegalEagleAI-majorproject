@@ -2,38 +2,40 @@
 <html lang="en" dir="ltr">
    <head>
       <meta charset="utf-8">
-      <title>Client signup</title>
+      <title>Lawyer signup</title>
       <link rel="stylesheet" href="{{ url_for('static', filename='css/loginandsignup.css') }}">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-      
    </head>
    <body>
       <div class="bg-img" style="background-image: url('static/images/bg1.jpg'); background-color: rgba(1, 28, 57,0.6)">
-         <div class="content" >
-            <header>Signup as Client</header>
+         <div class="content">
+            <header>Signup as Lawyer</header>
             <form action="#">
-                <div style="display: flex; justify-content: space-between; width: 100%;">
-                    <div class="field">
-                        <span class="fa fa-user" style="margin-right: 10px;"></span>
-                        <input type="text" id="username" placeholder="UserName">
+               
+                    <div class="field" >
+                        <span class="fa fa-user"></span>
+                        <input type="text" id="fullName" required placeholder="Full Name">
                     </div>
-                </div>
                <div class="field space">
                   <span class="fa fa-envelope"></span>
-                  <input type="email" id="email" placeholder="Email">
+                  <input type="email" id="email" required placeholder="Email">
                </div>
+               <div class="field space" >
+                  <span class="fas fa-id-card"></span>
+                  <input type="text" id="barCouncilID" required placeholder="Bar Council ID" >
+              </div>
                <div class="field space">
                 <span class="fa fa-lock"></span>
-                <input type="password" class="pass-key" id="password" required placeholder="Password">
+                <input type="password" id="password" class="pass-key" required placeholder="Password">
                 <span class="show">SHOW</span>
                 </div>
                <div class="field space">
                   <span class="fa fa-lock"></span>
-                  <input type="password" class="pass-key" required placeholder=" Confirm Password">
+                  <input type="password" id="confirmPassword" class="pass-key" required placeholder=" Confirm Password">
                   <span class="show">SHOW</span>
                </div>
                <div class="field space">
-                  <input type="submit" id="signup" value="SIGNUP">
+                  <input type="submit" id="Signup" value="SIGNUP">
                </div>
             </form>
             <div class="login">
@@ -49,11 +51,10 @@
             </div>
             <div class="signup">
                Already have an account?
-               <a href="{{ url_for('client_login') }}">Login Now</a>
+               <a href="{{ url_for('lawyer_login') }}">Login Now</a>
             </div>
          </div>
       </div>
-      <script type="module" src="{{ url_for('static', filename='js/firebase_Auth.js') }}"></script>
       <script>
          const pass_field = document.querySelector('.pass-key');
          const showBtn = document.querySelector('.show');
@@ -68,15 +69,17 @@
             showBtn.style.color = "#222";
           }
          });
-         const afterloginUrl = "{{ url_for('afterlogin') }}"; 
-            window.firebaseConfig = {
-                apiKey: "{{ firebase_api_key }}",
-                authDomain: "{{ firebase_auth_domain }}",
-                projectId: "{{ firebase_project_id }}",
-                storageBucket: "{{ firebase_storage_bucket }}",
-                messagingSenderId: "{{ firebase_messaging_sender_id }}",
-                appId: "{{ firebase_app_id }}"
-            };
-        </script>
+         const dashboardUrl = "{{ url_for('dashboard') }}"; 
+         window.firebaseConfig = {
+             apiKey: "{{ firebase_api_key }}",
+             authDomain: "{{ firebase_auth_domain }}",
+             projectId: "{{ firebase_project_id }}",
+             storageBucket: "{{ firebase_storage_bucket }}",
+             messagingSenderId: "{{ firebase_messaging_sender_id }}",
+             appId: "{{ firebase_app_id }}"
+         };
+     
+      </script>
+      <script type="module" src="{{ url_for('static', filename='js/lawyer_firebase_auth.js') }}" ></script>
    </body>
 </html>

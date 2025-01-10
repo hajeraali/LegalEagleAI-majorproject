@@ -2,33 +2,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-let firebaseConfig;
 
-// Fetch the Firebase configuration from the Flask backend
-fetch('/get-firebase-config')
-  .then(response => response.json())
-  .then(data => {
-    // Initialize Firebase with the configuration returned from the server
-    firebaseConfig = {
-      apiKey: data.apiKey,
-      authDomain: data.authDomain,
-      projectId: data.projectId,
-      storageBucket: data.storageBucket,
-      messagingSenderId: data.messagingSenderId,
-      appId: data.appId
-    };
-
-    // Initialize Firebase
-    initializeApp(firebaseConfig);
-  })
-  .catch(error => {
-    console.error('Error fetching Firebase configuration:', error);
-  });
+// Firebase configuration
+const firebaseConfig = window.firebaseConfig;
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const auth = getAuth(app);
 
 // Load lawyer data from the uploaded dataset
 let lawyerData = [];
 
-fetch('js/LawyerDataForAuth.csv')
+fetch('static/js/LawyerDataForAuth.csv')
   .then(response => response.text())
   .then(data => {
     lawyerData = data.split("\n").slice(1).map(row => {
@@ -83,8 +68,7 @@ window.addEventListener('load', () => {
           })
           .then(() => {
             console.log("Data successfully written to the database");
-            alert("Signup successful!");
-            window.location.href = "dashboard.html"; // Redirect to the desired page
+            window.location.href = dashboardUrl; // Redirect to the desired page
           })
           .catch((error) => {
             console.error("Error writing data to the database:", error);
@@ -122,8 +106,7 @@ window.addEventListener('load', () => {
             if (snapshot.exists()) {
               const data = snapshot.val();
               if (data.barCouncilID === barCouncilID) {
-                alert("Login successful!");
-                window.location.href = "dashboard.html"; // Redirect to the desired page
+                window.location.href = dashboardUrl; // Redirect to the desired page
               } else {
                 alert("Bar Council ID does not match. Please try again.");
               }

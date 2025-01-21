@@ -4,6 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lawyer Recommendation System</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4273b3;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+            color: #555;
+        }
+
+        input[type="text"], input[type="number"], input[type="file"], select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: #4273b3;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #4273b3;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #365f8f;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-row input {
+            width: 48%;
+        }
+
+        .form-row select {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 50%;
+                padding: 20px;
+            }
+        }
+    </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -11,41 +98,37 @@
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Lawyer Recommendation System</h1>
-        <form method="POST" enctype="multipart/form-data" class="mb-4" onsubmit="showLoadingAnimation()">
-            
-            <div class="form-group">
-                <label for="query">Enter your query:</label>
-                <input type="text" class="form-control" id="query" name="query">
-            </div>
-            <div class="form-group">
-                <label for="upload">Upload a legal document:</label>
-                <input type="file" class="form-control-file" id="upload" name="upload" accept=".pdf,.doc,.docx">
-            </div>
-            
-            <div class="form-group">
-                <label for="price_range">Select Expected Salary Range (₹):</label>
-                <input type="range" class="form-control-range" id="price_range" name="price_range" min="10000" max="5000000" step="10000" value="1000000" oninput="updatePriceRange(this.value)">
-                <div class="d-flex justify-content-between">
-                    <span>Minimum: ₹<span id="min_price_label">10,000</span></span>
-                    <span>Maximum: ₹<span id="max_price_label">50,00,000</span></span>
-                </div>
-                <input type="hidden" id="min_price" name="min_price" value="10000">
-                <input type="hidden" id="max_price" name="max_price" value="5000000">
-            </div>
-        
-            <div class="form-group">
-                <label for="sort_order">Sort by Nominal Fees:</label>
-                <select class="form-control" id="sort_order" name="sort_order">
-                    <option value="">Select...</option>
-                    <option value="low_to_high">Low to High</option>
-                    <option value="high_to_low">High to Low</option>
-                </select>
-            </div>
-        
-            <button type="submit" class="btn btn-primary">Get Recommendations</button>
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Typed Query -->
+            <label for="query">Enter your query:</label>
+            <input type="text" id="query" name="query" placeholder="Type your query here"><br>
+    
+            <!-- Upload Document -->
+            <label for="upload">Or upload a document:</label>
+            <input type="file" id="upload" name="upload" accept=".pdf,.docx"><br>
+    
+            <!-- Price Range -->
+            <label for="min_price">Minimum Price:</label>
+            <input type="number" id="min_price" name="min_price" step="0.01"> &nbsp; &nbsp; &nbsp;
+    
+            <label for="max_price">Maximum Price:</label>
+            <input type="number" id="max_price" name="max_price" step="0.01"><br>
+    
+            <!-- Location -->
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" placeholder="Enter location"><br>
+    
+            <!-- Sort Order -->
+            <label for="sort_order">Sort by price:</label>
+            <select id="sort_order" name="sort_order">
+                <option value="">-- Select --</option>
+                <option value="low_to_high">Low to High</option>
+                <option value="high_to_low">High to Low</option>
+            </select>
+    
+            <!-- Submit Button --><br>
+            <button type="submit">Find Lawyers</button>
         </form>
-        
-            
         
         <script>
           function updatePriceRange(value) {
@@ -84,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="card-body">
                                 <h5 class="card-title">{{ lawyer[1]['Practice_area'] }}</h5>
                                 <p class="card-text"><strong>Firm Name:</strong> {{ lawyer[1]['Firm_name'] }}</p>
-                                <p class="card-text"><strong>Firm Size:</strong> {{ lawyer[1]['Firm_size'] }}</p>
-                                <p class="card-text"><strong>Target Audience:</strong> {{ lawyer[1]['Target_audience'] }}</p>
-                                <p class="card-text"><strong>Designation:</strong> {{ lawyer[1]['Designation'] }}</p>
+                                <p class="card-text"><strong>Location:</strong> {{ lawyer[1]['Location'] }}</p>
+                                
+                               
                                 <p class="card-text"><strong>Years of Experience:</strong> {{ lawyer[1]['Years_of_Experience'] }}</p>
                                 <p class="card-text"><strong>Total Cases:</strong> {{ lawyer[1]['Total_cases'] }}</p>
                                 <p class="card-text"><strong>Successful Cases:</strong> {{ lawyer[1]['Successful_cases'] }}</p>
@@ -96,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="review">{{ review.strip() }}</div>
                                 {% endfor %}
                                 <p class="card-text"><strong>Nominal Fees per Hearing:</strong> {{ lawyer[1]['Nominal_fees_per_hearing'] }}</p>
-                                <p class="card-text"><strong>Bar Council ID:</strong> {{ lawyer[1]['Bar_Council_ID'] }}</p>
+                                
                                  <!-- Book Appointment Button -->
                                  <button class="btn btn-primary mt-3" data-lawyer-name="{{ lawyer[1]['Lawyer_name'] }}" onclick="bookAppointment(this)">Book Appointment</button>
 

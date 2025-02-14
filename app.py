@@ -96,17 +96,75 @@ def preprocess_query(query):
 
 def extract_text_from_file(file):
     """Extract text from a PDF or DOCX file."""
-    if file.filename.endswith('.pdf'):
-        reader = PdfReader(file)
-        text = ''
-        for page in reader.pages:
-            text += page.extract_text()
-        return text
-    elif file.filename.endswith('.docx'):
-        doc = docx.Document(file)
-        text = '\n'.join([para.text for para in doc.paragraphs])
-        return text
+    try:
+        if file.filename.endswith('.pdf'):
+            reader = PdfReader(file)
+            text = ''
+            for page in reader.pages:
+                text += page.extract_text() or ''  # Handle empty page text
+            return text.strip()
+        elif file.filename.endswith('.docx'):
+            doc = docx.Document(file)
+            text = '\n'.join([para.text for para in doc.paragraphs])
+            return text.strip()
+    except Exception as e:
+        print(f"Error extracting text from file: {e}")  # Debugging log
     return ''
+
+
+@app.route('/recommend_lawyers', methods=['GET', 'POST'])
+def recommend_lawyers_route():
+    lawyer_recommendations = None
+    error_message = None
+    sort_order = None  # Initialize sort order variable
+
+    if request.method == 'POST':
+        user_query = None
+        min_price = None
+        max_price = None
+        location = None  # Initialize location variable
+
+        try:
+            # Handle typed query
+            if 'query' in request.form and request.form['query']:
+                user_query = request.form['query']
+            
+            # Handle document upload
+            if 'upload' in request.files and request.files['upload']:
+                file = request.files['upload']
+                if file and (file.filename.endswith('.pdf') or file.filename.endswith('.docx')):
+                    document_text = extract_text_from_file(file)
+                    if document_text:
+                        user_query = document_text
+                    else:
+                        error_message = "Failed to extract text from the uploaded document."
+            
+            # Get the price range if provided
+            if 'min_price' in request.form and 'max_price' in request.form:
+                min_price = request.form.get('min_price')
+                max_price = request.form.get('max_price')
+
+            # Get the sort order if provided
+            sort_order = request.form.get('sort_order')
+
+            # Get the location if provided
+            if 'location' in request.form and request.form['location']:
+                location = request.form['location']
+
+            if user_query:
+                lawyer_recommendations = recommend_lawyers(user_query, min_price, max_price, sort_order, location)
+            else:
+                error_message = "No query provided. Please type a query or upload a valid document."
+        except Exception as e:
+            error_message = f"An error occurred: {str(e)}"
+            print(error_message)  # Debug log
+
+    return render_template(
+        'recommend_lawyers.html',
+        recommended_lawyers=lawyer_recommendations,
+        error_message=error_message,
+    )
+
     
 load_dotenv()    
 # Load Firebase config and make it globally available before each request
@@ -149,40 +207,8 @@ def lawyer_signup():
 def dashboard():
     return render_template('dashboard.html', **g.firebase_config)
 
-@app.route('/recommend_lawyers', methods=['GET', 'POST'])
-def recommend_lawyers_route():
-    lawyer_recommendations = None
-    sort_order = None  # Initialize sort order variable
-    if request.method == 'POST':
-        user_query = None
-        min_price = None
-        max_price = None
 
-        # Handle typed query
-        if 'query' in request.form and request.form['query']:
-            user_query = request.form['query']
-        
-        # Handle document upload
-        if 'upload' in request.files and request.files['upload']:
-            file = request.files['upload']
-            if file and (file.filename.endswith('.pdf') or file.filename.endswith('.docx')):
-                document_text = extract_text_from_file(file)
-                user_query = document_text  # Set user_query to the text from the document
-        
-        # Get the price range if provided
-        if 'min_price' in request.form and 'max_price' in request.form:
-            min_price = request.form.get('min_price')
-            max_price = request.form.get('max_price')
-
-        # Get the sort order if provided
-        sort_order = request.form.get('sort_order')
-
-        if user_query:
-            lawyer_recommendations = recommend_lawyers(user_query, min_price, max_price, sort_order)
-
-    return render_template('recommend_lawyers.html', recommended_lawyers=lawyer_recommendations)
-
-def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None):
+def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None, location=None):
     # Preprocess the query
     cleaned_query = preprocess_query(query)
 
@@ -213,6 +239,10 @@ def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None):
             # Handle conversion errors
             pass
 
+    # Filter recommendations by location if provided
+    if location:
+        recommendations = recommendations[recommendations['Location'].str.contains(location, case=False, na=False)]
+
     # Sort recommendations based on user selection
     if sort_order == 'low_to_high':
         recommendations = recommendations.sort_values(by='Nominal_fees_per_hearing', ascending=True)
@@ -221,9 +251,6 @@ def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None):
 
     return recommendations
 
-@app.route('/booking.html')
-def booking():
-    return render_template('booking.html')  # Ensure the file is in the templates folder
 
 # Database configuration (replace karo with ur actual database credentials)
 DB_HOST = 'localhost'
@@ -261,6 +288,10 @@ def create_table():
 
 # Call create_table when the app starts
 create_table()
+@app.route('/booking.html')
+def booking():
+    lawyer_name = request.args.get('lawyer')  # Get lawyer name from URL parameters
+    return render_template('booking.html', lawyer_name=lawyer_name)
 
 # Route to handle form submissions
 @app.route('/book_appointment', methods=['POST'])

@@ -14,7 +14,23 @@ import psycopg2
 from psycopg2 import sql
 from flask import Flask, request, jsonify
 from flask import Flask, render_template, g
+from flask import Flask
+from flask_mail import Mail, Message
 from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from a .env file
+
+app = Flask(__name__)  # Create the Flask app instance
+mail = Mail(app)
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+
+
 
 # Download NLTK resources
 nltk.download('punkt')
@@ -249,6 +265,7 @@ create_table()
 # Route to handle form submissions
 @app.route('/book_appointment', methods=['POST'])
 def book_appointment():
+    # Retrieve the data from the request
     data = request.json
     appointment_date = data['appointmentDate']
     client_name = data['clientName']
@@ -256,43 +273,66 @@ def book_appointment():
     appointment_time = data['appointmentTime']
     case_details = data['caseDetails']
 
-    # Parse the date and time to a datetime object
-    appointment_datetime = datetime.strptime(f"{appointment_date} {appointment_time}", "%Y-%m-%d %H:%M")
+    try:
+        # Parse the date and time to a datetime object
+        appointment_datetime = datetime.strptime(f"{appointment_date} {appointment_time}", "%Y-%m-%d %H:%M")
+        appointment_end_time = appointment_datetime + timedelta(minutes=30)
 
-    # Calculate the end time of the 30-minute appointment
-    appointment_end_time = appointment_datetime + timedelta(minutes=30)
+        # Connect to database and check for overlapping appointments
+        conn = connect_db()
+        cur = conn.cursor()
 
-    conn = connect_db()
-    cur = conn.cursor()
+        check_query = """
+        SELECT * FROM public.appointments
+        WHERE appointment_date = %s
+        AND (
+            (appointment_time <= %s AND appointment_time + interval '30 minutes' > %s)
+            OR (appointment_time >= %s AND appointment_time < %s)
+        );
+        """
+        cur.execute(check_query, (appointment_date, appointment_datetime.time(), appointment_datetime.time(), appointment_datetime.time(), appointment_end_time.time()))
+        overlapping_appointments = cur.fetchall()
 
-    # Check for overlapping appointments
-    check_query = """
-    SELECT * FROM public.appointments
-    WHERE appointment_date = %s
-    AND (
-        (appointment_time <= %s AND appointment_time + interval '30 minutes' > %s)
-        OR (appointment_time >= %s AND appointment_time < %s)
-    );
-    """
-    cur.execute(check_query, (appointment_date, appointment_datetime.time(), appointment_datetime.time(), appointment_datetime.time(), appointment_end_time.time()))
-    overlapping_appointments = cur.fetchall()
+        if overlapping_appointments:
+            cur.close()
+            conn.close()
+            return jsonify({"message": "This time slot is already booked. Please choose another time."}), 400
 
-    if overlapping_appointments:
-        cur.close()
-        conn.close()
-        return jsonify({"message": "This time slot is already booked. Please choose another time."}), 400
+        # Insert the new appointment into the database
+        insert_query = """
+        INSERT INTO public.appointments (appointment_date, client_name, client_email, appointment_time, case_details)
+        VALUES (%s, %s, %s, %s, %s);
+        """
+        cur.execute(insert_query, (appointment_date, client_name, client_email, appointment_time, case_details))
+        conn.commit()
 
-    # If no overlap, insert the new appointment
-    insert_query = """
-    INSERT INTO public.appointments (appointment_date, client_name, client_email, appointment_time, case_details)
-    VALUES (%s, %s, %s, %s, %s);
-    """
-    cur.execute(insert_query, (appointment_date, client_name, client_email, appointment_time, case_details))
-    conn.commit()
-    cur.close()
-    conn.close()
-    
-    return jsonify({"message": "Appointment booked successfully!"})
+        # Send confirmation email
+        try:
+            msg = Message(
+                subject="Appointment Confirmation",
+                sender=app.config['MAIL_USERNAME'],
+                
+                recipients=[client_email],
+                body=f"Dear {client_name},\n\nYour appointment has been successfully booked for {appointment_date} at {appointment_time}.\n\nCase Details:\n{case_details}\n\nThank you for choosing our services."
+            )
+            mail.send(msg)
+            return jsonify({"message": "Appointment booked successfully, and confirmation email sent!"})
+
+        except Exception as email_error:
+            print(f"Email sending failed: {email_error}")
+            return jsonify({"message": "Appointment booked, but email confirmation failed."}), 500
+        
+    except Exception as booking_error:
+        print(f"Error booking appointment: {booking_error}")
+        return jsonify({"message": "Error booking appointment."}), 500
+
+    finally:
+        # Ensure the database connection is closed
+        if 'cur' in locals():
+            cur.close()
+        if 'conn' in locals():
+            conn.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True)

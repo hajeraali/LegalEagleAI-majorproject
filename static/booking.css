@@ -78,3 +78,35 @@ button[type="submit"]:hover {
   
     background-color: #2d3e50;
 }
+
+/* Styling for the time slot selection */
+.time-slot-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 1rem;
+    justify-content: center; /* Center align time slots */
+}
+
+.time-slot {
+    padding: 10px 15px;
+    border: 2px solid #2d3e50;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-align: center;
+    min-width: 100px;
+}
+
+.time-slot:hover {
+    background-color: #2d3e50;
+    color: white;
+}
+
+.time-slot.selected {
+    background-color: #2d3e50;
+    color: white;
+    font-weight: bold;
+}

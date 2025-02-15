@@ -2,41 +2,29 @@ import os
 import re
 import nltk
 import pandas as pd
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, g
 from transformers import pipeline
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader
 import docx
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
 import psycopg2
 from psycopg2 import sql
-from flask import Flask, request, jsonify
-from flask import Flask, render_template, g
-from flask import Flask
-from flask_mail import Mail, Message
+from flask_mailman import Mail
+from flask_mailman.message import EmailMessage
+
+from check_env import init_mail, send_email 
 from dotenv import load_dotenv
-load_dotenv()  # Load environment variables from a .env file
 
-app = Flask(__name__)  # Create the Flask app instance
-mail = Mail(app)
-
-# Configure Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-
-
+load_dotenv()  
+app = Flask(__name__)
+init_mail(app)
 
 # Download NLTK resources
 nltk.download('punkt')
 nltk.download('stopwords')
-
-app = Flask(__name__)
 
 # Load dataset
 data = pd.read_csv('lawyers_dataset.csv')
@@ -268,19 +256,22 @@ def connect_db():
     )
 
 # Function to create the appointments table if it doesn’t exist
+# Function to create the appointments table if it doesn’t exist
 def create_table():
     conn = connect_db()
     cur = conn.cursor()
     create_table_query = """
-    CREATE TABLE IF NOT EXISTS public.appointments (
+    CREATE TABLE IF NOT EXISTS public.clientappointments (
         id SERIAL PRIMARY KEY,
         appointment_date DATE NOT NULL,
         client_name VARCHAR(100) NOT NULL,
         client_email VARCHAR(100) NOT NULL,
         appointment_time TIME NOT NULL,
-        case_details TEXT NOT NULL
+        case_details TEXT NOT NULL,
+        lawyer_name VARCHAR(100) NOT NULL
     );
     """
+
     cur.execute(create_table_query)
     conn.commit()
     cur.close()
@@ -296,13 +287,14 @@ def booking():
 # Route to handle form submissions
 @app.route('/book_appointment', methods=['POST'])
 def book_appointment():
-    # Retrieve the data from the request
     data = request.json
     appointment_date = data['appointmentDate']
     client_name = data['clientName']
     client_email = data['clientEmail']
+    lawyer_name = data['lawyerName']
     appointment_time = data['appointmentTime']
     case_details = data['caseDetails']
+      # Get the lawyer name from the request
 
     try:
         # Parse the date and time to a datetime object
@@ -314,48 +306,41 @@ def book_appointment():
         cur = conn.cursor()
 
         check_query = """
-        SELECT * FROM public.appointments
-        WHERE appointment_date = %s
+        SELECT * FROM public.clientappointments
+        WHERE lawyer_name = %s 
+        AND appointment_date = %s
         AND (
             (appointment_time <= %s AND appointment_time + interval '30 minutes' > %s)
             OR (appointment_time >= %s AND appointment_time < %s)
         );
         """
-        cur.execute(check_query, (appointment_date, appointment_datetime.time(), appointment_datetime.time(), appointment_datetime.time(), appointment_end_time.time()))
+
+        cur.execute(check_query, (lawyer_name, appointment_date, appointment_datetime.time(), appointment_datetime.time(), appointment_datetime.time(), appointment_end_time.time()))
         overlapping_appointments = cur.fetchall()
 
         if overlapping_appointments:
             cur.close()
             conn.close()
-            return jsonify({"message": "This time slot is already booked. Please choose another time."}), 400
+            return jsonify({"message": f"This time slot is already booked for {lawyer_name}. Please choose another time."}), 400
 
         # Insert the new appointment into the database
         insert_query = """
-        INSERT INTO public.appointments (appointment_date, client_name, client_email, appointment_time, case_details)
-        VALUES (%s, %s, %s, %s, %s);
+        INSERT INTO public.clientappointments (appointment_date, client_name, client_email, lawyer_name, appointment_time, case_details)
+        VALUES (%s, %s, %s, %s, %s, %s);
         """
-        cur.execute(insert_query, (appointment_date, client_name, client_email, appointment_time, case_details))
+        cur.execute(insert_query, (appointment_date, client_name, client_email, lawyer_name, appointment_time, case_details))
         conn.commit()
 
-        # Send confirmation email
-        try:
-            msg = Message(
-                subject="Appointment Confirmation",
-                sender=app.config['MAIL_USERNAME'],
-                
-                recipients=[client_email],
-                body=f"Dear {client_name},\n\nYour appointment has been successfully booked for {appointment_date} at {appointment_time}.\n\nCase Details:\n{case_details}\n\nThank you for choosing our services."
-            )
-            mail.send(msg)
-            return jsonify({"message": "Appointment booked successfully, and confirmation email sent!"})
+    # Send confirmation email
+       # print(f"Loaded email: {app.config.get('MAIL_USERNAME')}")
+       #print(f"Loaded password: {app.config.get('MAIL_PASSWORD')}")
+       # Send confirmation email using the separate email service
+        email_sent = send_email(client_name, client_email, appointment_date, appointment_time, case_details, lawyer_name)
 
-        except Exception as email_error:
-            print(f"Email sending failed: {email_error}")
+        if email_sent:
+            return jsonify({"message": "Appointment booked successfully, and confirmation email sent!"})
+        else:
             return jsonify({"message": "Appointment booked, but email confirmation failed."}), 500
-        
-    except Exception as booking_error:
-        print(f"Error booking appointment: {booking_error}")
-        return jsonify({"message": "Error booking appointment."}), 500
 
     finally:
         # Ensure the database connection is closed

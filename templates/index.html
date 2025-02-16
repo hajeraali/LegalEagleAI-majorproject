@@ -26,6 +26,141 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/aos.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+      #chat-circle {
+        position: fixed;
+        bottom: 20px;
+        right: 10px;
+        width: 120px;
+        height: 120px;
+        cursor: pointer;
+      }
+
+      .chat-box {
+        display: none;
+        background:rgba(205, 149, 117, 0.7);;
+        position: fixed;
+        right: 30px;
+        bottom: 50px;
+        width: 300px;
+        max-width: 85vw;
+        max-height: 100vh;
+        border-radius: 15px;
+        box-shadow: 0px 5px 35px 9px;
+        padding: 10px;
+      }
+
+      .chat-box-toggle {
+        float: right;
+        cursor: pointer;
+        color: black;
+      }
+
+      .chat-box-body {
+        width: 100%;
+        display: flex;
+        flex-direction: column-reverse;
+        scroll-behavior: smooth;
+        font-family: Verdana, sans-serif;
+        position: relative;
+        overflow-y: auto;
+        max-height: 300px;
+        scrollbar-width: none;
+        padding: 10px;
+      }
+
+      /* Message Styling */
+      .chat-msg {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        font-size: 10px;
+        max-width: 95%;
+      }
+
+      .chat-msg.user {
+        justify-content: flex-end;
+      }
+
+      .chat-msg.bot {
+        justify-content: flex-start;
+      }
+
+      .cm-msg-text {
+        background: #ffebcd;
+        color: #000;
+        padding: 8px 10px;
+        border-radius: 10px;
+        position: relative;
+        font-weight: 400;
+        max-width: 85%;
+        line-height: 1.5;
+      }
+
+      .chat-msg.user .cm-msg-text {
+        border-radius: 10px 10px 0 10px;
+      }
+
+      .chat-msg.bot .cm-msg-text {
+        border-radius: 10px 10px 10px 0;
+      }
+
+      /* Tail Design */
+      .chat-msg.user .cm-msg-text::before {
+        content: "";
+        position: absolute;
+        right: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 10px solid transparent;
+        border-left-color: #ffebcd;
+      }
+
+      .chat-msg.bot .cm-msg-text::before {
+        content: "";
+        position: absolute;
+        left: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 10px solid transparent;
+        border-right-color: #ffebcd;
+      }
+
+      /* Input Box */
+      .chat-input {
+        position: relative;
+        margin-top: 10px;
+      }
+
+      #chat-input {
+        background: #fff;
+        width: 100%;
+        height: 40px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        outline: none;
+        border-radius: 10px;
+        color: #333;
+        font-size: 12px;
+      }
+
+      .chat-submit {
+        position: absolute;
+        bottom: 0px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        border-radius: 50%;
+        color: black;
+        width: 35px;
+        height: 35px;
+      }
+    </style>
+
   </head>
   <body>
 
@@ -467,20 +602,133 @@
     </footer>
 
   </div>
+      <!-- Chatbot UI -->
+    <div id="body">
+      <div id="chat-circle">
+        <dotlottie-player src="https://lottie.host/b89214c5-0ac8-4729-b772-73cf5c5eac58/8RL2HzEFFM.lottie" background="transparent" speed="1" style="width: 120px; height: 120px;" loop autoplay>
+        </dotlottie-player>
+      </div>
 
-  <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/jquery-migrate-3.0.1.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/owl.carousel.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/mediaelement-and-player.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/jquery.stellar.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/jquery.countdown.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/jquery.magnific-popup.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/aos.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+      <div class="chat-box">
+        <span class="chat-box-toggle"><i class="material-icons">close</i></span>
+        <div class="chat-box-body">
+          <div class="chat-box-overlay"></div>
+          <div class="chat-logs"></div>
+        </div>
+        <div class="chat-input">
+          <form>
+            <input type="text" id="chat-input" placeholder="Send a message..." />
+            <button type="submit" class="chat-submit" id="chat-submit">
+              <i class="material-icons">send</i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+    <script>
+        $(function () {
+            var INDEX = 0;
+
+            $("#chat-circle").click(function () {
+                $(".chat-box").toggle();
+                $(this).hide();
+            });
+
+            $(".chat-box-toggle").click(function () {
+                $(".chat-box").hide();
+                $("#chat-circle").show();
+            });
+
+            $("#chat-submit").click(function (e) {
+                e.preventDefault();
+                var msg = $("#chat-input").val();
+                if (msg.trim() === '') {
+                    return false;
+                }
+                generate_message(msg, 'user');
+                setTimeout(function () {
+                    $.ajax({
+                        url: "/api/generate",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ question: msg }),
+                        success: function (data) {
+                            if (data.response) {
+                                generate_message(data.response, 'bot');
+                            }
+                        },
+                        error: function () {
+                            generate_message("Sorry, there was an error with the chatbot.", 'bot');
+                        }
+                    });
+                }, 1000);
+            });
+
+            function generate_message(msg, type) {
+                INDEX++;
+                msg = msg.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+                msg = msg.replace(/(\d+\.)\s/g, "<br>$1 "); 
+                // Convert * bullets into an unordered list
+                if (msg.includes('*')) {
+                  let items = msg.split('*').filter(item => item.trim() !== '');
+                  msg = "<ul style='padding-left: 20px;'>";
+                  items.forEach(item => {
+                      msg += `<li>${item.trim()}</li>`;
+                  });
+                  msg += "</ul>";
+                }
+                var str = "<div id='cm-msg-" + INDEX + "' class='chat-msg " + type + "'>";
+                str += "<div class='cm-msg-text'>" + DOMPurify.sanitize(msg) + "</div>";
+                str += "</div>";
+                $(".chat-logs").append(str);
+                $("#cm-msg-" + INDEX).hide().fadeIn(300);
+                if (type === 'user') {
+                    $("#chat-input").val('');
+                }
+                $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight }, 1000);
+            }
+        });
+
+        document.getElementById("questionForm")?.addEventListener("submit", async (event) => {
+            event.preventDefault(); // Prevent form reload
+
+            const question = document.getElementById("question").value;
+
+            try {
+                const response = await fetch("/api/generate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ question }),
+                });
+
+                const data = await response.json(); 
+
+                document.getElementById("response").innerHTML = data.response;
+                
+            } catch (error) {
+                document.getElementById("response").textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+
+        <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery-migrate-3.0.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/owl.carousel.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/mediaelement-and-player.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery.stellar.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery.countdown.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery.magnific-popup.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/aos.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
 
   </body>
 </html>

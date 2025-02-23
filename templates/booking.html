@@ -96,42 +96,57 @@
             return `${hours}:${minutes}`;
         }
 
+        // Function to show toast notification
+        function showToast(message, type = "success") {
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100); // Small delay for animation
+            
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 500);
+            }, 3000); // Auto-hide after 3 seconds
+        }
+
         // Handle form submission
         document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
             e.preventDefault(); // Prevent page refresh
-            
-            // Collect form data
+
             const appointmentData = {
                 appointmentDate: document.getElementById('appointmentDate').value,
                 clientName: document.getElementById('clientName').value,
                 clientEmail: document.getElementById('clientEmail').value,
-                lawyerName: document.getElementById('lawyerName').value,  // Add lawyer name
+                lawyerName: document.getElementById('lawyerName').value,
                 appointmentTime: document.getElementById('appointmentTime').value,
                 caseDetails: document.getElementById('caseDetails').value
             };
 
             try {
-                // Send data to Flask backend
                 const response = await fetch('/book_appointment', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(appointmentData)
                 });
 
                 if (response.ok) {
-                    alert("Appointment booked successfully!");
+                    showToast("✅ Appointment booked successfully!", "success");
                     document.getElementById('appointmentForm').reset();
                 } else {
                     const errorData = await response.json();
-                    alert("Error booking appointment: " + errorData.message);
+                    showToast("❌ Error: " + errorData.message, "error");
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert("Error booking appointment. Please try again.");
+                showToast("❌ Error booking appointment. Please try again.", "error");
             }
         });
+
     </script>
 </body>
 </html>

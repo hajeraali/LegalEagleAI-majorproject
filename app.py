@@ -256,7 +256,6 @@ def connect_db():
     )
 
 # Function to create the appointments table if it doesn’t exist
-# Function to create the appointments table if it doesn’t exist
 def create_table():
     conn = connect_db()
     cur = conn.cursor()

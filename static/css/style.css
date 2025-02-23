@@ -101,7 +101,7 @@ a {
   padding-bottom: 20px;
   border-radius: 0; }
   .form-control:active, .form-control:focus {
-    border-color: #cea15a; }
+    border-color: #c38d35; }
   .form-control:hover, .form-control:active, .form-control:focus {
     -webkit-box-shadow: none !important;
     box-shadow: none !important; }
@@ -141,7 +141,7 @@ a {
   .bg-image.overlay:before {
     background: rgba(0, 0, 0, 0.4); }
   .bg-image.overlay-primary:before {
-    background: rgba(206, 161, 90, 0.9); }
+    background: #c38d35(206, 161, 90, 0.9); }
   .bg-image.overlay-info:before {
     background: rgba(83, 205, 226, 0.9); }
   .bg-image.overlay-success:before {
@@ -218,7 +218,7 @@ a {
   .site-footer h2, .site-footer h3, .site-footer h4, .site-footer h5 {
     color: #fff; }
   .site-footer a {
-    color: #cea15a; }
+    color: #c38d35; }
     .site-footer a:hover {
       color: #ffffff; }
   .site-footer ul li {
@@ -232,7 +232,7 @@ a {
     padding-bottom: 15px; }
     .site-footer .footer-heading:before {
       content: "";
-      background: #cea15a;
+      background: #c38d35;
       width: 40px;
       height: 2px;
       position: absolute;
@@ -360,7 +360,7 @@ a {
             left: 100%;
             top: 0; }
           .site-navbar .site-navigation .site-menu .has-children .dropdown > li.has-children:hover > a, .site-navbar .site-navigation .site-menu .has-children .dropdown > li.has-children:active > a, .site-navbar .site-navigation .site-menu .has-children .dropdown > li.has-children:focus > a {
-            color: #cea15a; }
+            color: #c38d35; }
       .site-navbar .site-navigation .site-menu .has-children:hover > a, .site-navbar .site-navigation .site-menu .has-children:focus > a, .site-navbar .site-navigation .site-menu .has-children:active > a {
         color: #fff; }
       .site-navbar .site-navigation .site-menu .has-children:hover, .site-navbar .site-navigation .site-menu .has-children:focus, .site-navbar .site-navigation .site-menu .has-children:active {
@@ -560,7 +560,7 @@ a {
   font-weight: 900;
   letter-spacing: .1rem;
   color: #fff !important;
-  background-color: #cea15a;
+  background-color: #c38d35;
   padding: 10px;
   border-radius: 4px;
   cursor: pointer;

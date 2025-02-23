@@ -14,6 +14,7 @@ import psycopg2
 from psycopg2 import sql
 from flask_mailman import Mail
 from flask_mailman.message import EmailMessage
+import google.generativeai as genai
 
 from check_env import init_mail, send_email 
 from dotenv import load_dotenv
@@ -153,6 +154,45 @@ def recommend_lawyers_route():
         error_message=error_message,
     )
 
+    
+# Configure the API key
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if not GOOGLE_API_KEY:
+    raise ValueError("Please set the GOOGLE_API_KEY environment variable.")
+genai.configure(api_key=GOOGLE_API_KEY)
+@app.route("/api/generate", methods=["POST"])
+def generate():
+    try:
+        # Get the question from the incoming JSON
+        data = request.json
+        user_question = data.get("question", "").strip().lower()
+
+        # If the question is empty
+        if not user_question:
+            return jsonify({"error": "Please provide a valid question."}), 400
+
+        # Check if the user is asking for lawyer recommendations
+        if "recommend lawyer" in user_question or "find lawyer" in user_question:
+            return jsonify({
+                "response": 'I can help you find a lawyer! <a href="/client_login">Recommend</a>'
+            })
+
+        # Set up the chatbot prompt
+        summarization_prompt = f"You are a chatbot that gives legal advice only if asked. Otherwise, answer the following question in simple answers and in no more than 70 words: {user_question}"
+
+        # Generate a response using the AI model
+        model = genai.GenerativeModel(
+            model_name="gemini-2.0-flash-exp",  # Use a valid model name
+        )
+
+        chat_session = model.start_chat(history=[])
+        response = chat_session.send_message(summarization_prompt)
+
+        # Return the AI-generated response
+        return jsonify({"response": response.text})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
 load_dotenv()    
 # Load Firebase config and make it globally available before each request

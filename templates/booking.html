@@ -134,12 +134,22 @@
                     body: JSON.stringify(appointmentData)
                 });
 
+<<<<<<< HEAD
+                const data = await response.json();
+
+                if (data.success) {
+                    alert("Appointment booked successfully!");
+                    window.location.href = "/afterlogin"; // Redirect on success
+                } else {
+                    alert("Error booking appointment: " + data.message);
+=======
                 if (response.ok) {
                     showToast("✅ Appointment booked successfully!", "success");
                     document.getElementById('appointmentForm').reset();
                 } else {
                     const errorData = await response.json();
                     showToast("❌ Error: " + errorData.message, "error");
+>>>>>>> 49d4aa399d4531155cc925a60103a4e41af5f697
                 }
             } catch (error) {
                 console.error('Error:', error);

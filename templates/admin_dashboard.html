@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body { background: beige; }
+        .container { margin-top: 50px; }
+        .card { margin-bottom: 20px; }
+        .btn { cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 1; padding-top: 100px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: white; padding: 20px; border: 1px solid #888; width: 30%; margin: auto; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Admin Dashboard</h2>
+        <button class="btn btn-danger float-end" onclick="logout()">Logout</button>
+
+        <!-- Admin Login Modal -->
+        <div id="adminLoginModal" class="modal">
+            <div class="modal-content">
+                <h4>Admin Login</h4>
+                <input type="text" id="adminUsername" placeholder="Username" class="form-control"><br>
+                <input type="password" id="adminPassword" placeholder="Password" class="form-control"><br>
+                <button class="btn btn-primary" onclick="login()">Login</button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="lawyers-tab" data-bs-toggle="tab" href="#lawyers" role="tab" aria-controls="lawyers" aria-selected="true">Lawyers</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="users-tab" data-bs-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false">Users</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="adminTabContent">
+            <!-- Lawyers Tab -->
+            <div class="tab-pane fade show active" id="lawyers" role="tabpanel" aria-labelledby="lawyers-tab">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">Registered Lawyers</div>
+                    <div class="card-body">
+                        <ul id="lawyer-list" class="list-group"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">Registered Clients</div>
+                    <div class="card-body">
+                        <ul id="user-list" class="list-group"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approval Modal -->
+        <div class="modal" id="approvalModal">
+            <div class="modal-content">
+                <h4>Approval Confirmation</h4>
+                <p>Are you sure you want to approve this lawyer?</p>
+                <button class="btn btn-success" id="confirmApproval">Yes</button>
+                <button class="btn btn-secondary" onclick="closeApprovalModal()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (required for tab functionality) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let selectedLawyerId = null;
+    
+        function checkAdminSession() {
+            $.get("/admin_check", function(response) {
+                if (!response.logged_in) {
+                    $("#adminLoginModal").css("display", "block");
+                } else {
+                    loadDashboard();
+                }
+            });
+        }
+    
+        function login() {
+            let data = { 
+                username: $("#adminUsername").val(), 
+                password: $("#adminPassword").val() 
+            };
+    
+            $.ajax({
+                url: "/admin_login",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function(response) {
+                    $("#adminLoginModal").css("display", "none");
+                    loadDashboard();
+                },
+                error: function(xhr) {
+                    alert("Invalid Credentials");
+                }
+            });
+        }
+    
+        function logout() {
+            $.post("/admin_logout", function() {
+                window.location.href = "/";
+            });
+        }
+    
+        function deleteUser(userId) {
+            if (confirm("Are you sure you want to delete this user?")) {
+                $.ajax({
+                    url: "/remove_user",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ user_id: userId, user_type: "user" }),
+                    success: function(response) {
+                        alert("User deleted successfully!");
+                        loadDashboard();
+                    },
+                    error: function(xhr) {
+                        alert("Failed to delete user.");
+                    }
+                });
+            }
+        }
+    
+        function deleteLawyer(lawyerId) {
+            if (confirm("Are you sure you want to delete this lawyer?")) {
+                $.ajax({
+                    url: "/remove_user",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ user_id: lawyerId, user_type: "lawyer" }),
+                    success: function(response) {
+                        alert("Lawyer deleted successfully!");
+                        loadDashboard();
+                    },
+                    error: function(xhr) {
+                        alert("Failed to delete lawyer.");
+                    }
+                });
+            }
+        }
+    
+        function openApprovalModal(lawyerId) {
+            selectedLawyerId = lawyerId;
+            $("#approvalModal").css("display", "block");
+        }
+    
+        function closeApprovalModal() {
+            selectedLawyerId = null;
+            $("#approvalModal").css("display", "none");
+        }
+    
+        function approveLawyer() {
+            if (selectedLawyerId) {
+                $.ajax({
+                    url: "/approve_lawyer",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ lawyer_id: selectedLawyerId }),
+                    success: function(response) {
+                        alert("Lawyer approved successfully!");
+        
+                        // Update UI without reloading
+                        let lawyerItem = $(`#lawyer-${selectedLawyerId}`);
+                        lawyerItem.find(".badge").removeClass("bg-warning").addClass("bg-success").text("Approved");
+                        lawyerItem.find(".btn-success").remove(); // Remove the approve button
+        
+                        closeApprovalModal();
+                    },
+                    error: function(xhr) {
+                        alert("Failed to approve lawyer.");
+                    }
+                });
+            }
+        }
+        
+            
+        function loadDashboard() {
+            $.get("/registered_users", function(data) {
+                // Display Users
+                let userList = $("#user-list");
+                userList.empty();
+                if (data.users) {
+                    Object.entries(data.users).forEach(([id, user]) => {
+                        if (!user.email || !user.username) {
+                            $.ajax({
+                                url: "/remove_user",
+                                type: "POST",
+                                contentType: "application/json",
+                                data: JSON.stringify({ user_id: id, user_type: "user" }),
+                                success: function(response) {
+                                    console.log(`Removed user with ID: ${id} due to missing information.`);
+                                },
+                                error: function(xhr) {
+                                    console.log("Failed to remove user.");
+                                }
+                            });
+                        } else {
+                            userList.append(`
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    ${user.username} - ${user.email}
+                                    <button class="btn btn-danger btn-sm" onclick="deleteUser('${id}')">Delete</button>
+                                </li>
+                            `);
+                        }
+                    });
+                }
+    
+                // Display Lawyers
+                let lawyerList = $("#lawyer-list");
+                lawyerList.empty();
+                if (data.lawyers) {
+                    Object.entries(data.lawyers).forEach(([id, lawyer]) => {
+                        let isApproved = lawyer.status === true || lawyer.status === "Approved";
+                        let status = isApproved ? "Approved" : "Pending";
+                        let approveButton = !isApproved 
+                            ? `<button class="btn btn-success btn-sm me-2" onclick="openApprovalModal('${id}')">Approve</button>` 
+                            : '';
+                        
+                        
+                        let deleteButton = `<button class="btn btn-danger btn-sm" onclick="deleteLawyer('${id}')">Delete</button>`;
+                        lawyerList.append(`
+                        <li id="lawyer-${id}" class="list-group-item d-flex justify-content-between align-items-center">
+                            ${lawyer.name} - ${lawyer.email} - 
+                            <span class="badge bg-${isApproved ? 'success' : 'warning'}">${status}</span>
+                            <div>${approveButton} ${deleteButton}</div>
+                        </li>
+                    `);
+                    
+                    });
+                }
+            });
+        }
+    
+        $(document).ready(function() {
+            checkAdminSession();
+            $("#confirmApproval").click(approveLawyer);
+        });
+    </script>
+    </body>
+</html>

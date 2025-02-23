@@ -96,33 +96,16 @@
             return `${hours}:${minutes}`;
         }
 
-        // Function to show toast notification
-        function showToast(message, type = "success") {
-            const toast = document.createElement("div");
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add("show");
-            }, 100); // Small delay for animation
-            
-            setTimeout(() => {
-                toast.classList.remove("show");
-                setTimeout(() => toast.remove(), 500);
-            }, 3000); // Auto-hide after 3 seconds
-        }
-
         // Handle form submission
         document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
             e.preventDefault(); // Prevent page refresh
-
+            
+            // Collect form data
             const appointmentData = {
                 appointmentDate: document.getElementById('appointmentDate').value,
                 clientName: document.getElementById('clientName').value,
                 clientEmail: document.getElementById('clientEmail').value,
-                lawyerName: document.getElementById('lawyerName').value,
+                lawyerName: document.getElementById('lawyerName').value,  // Add lawyer name
                 appointmentTime: document.getElementById('appointmentTime').value,
                 caseDetails: document.getElementById('caseDetails').value
             };
@@ -134,7 +117,6 @@
                     body: JSON.stringify(appointmentData)
                 });
 
-<<<<<<< HEAD
                 const data = await response.json();
 
                 if (data.success) {
@@ -142,21 +124,12 @@
                     window.location.href = "/afterlogin"; // Redirect on success
                 } else {
                     alert("Error booking appointment: " + data.message);
-=======
-                if (response.ok) {
-                    showToast("✅ Appointment booked successfully!", "success");
-                    document.getElementById('appointmentForm').reset();
-                } else {
-                    const errorData = await response.json();
-                    showToast("❌ Error: " + errorData.message, "error");
->>>>>>> 49d4aa399d4531155cc925a60103a4e41af5f697
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast("❌ Error booking appointment. Please try again.", "error");
+                alert("Error booking appointment. Please try again.");
             }
         });
-
     </script>
 </body>
 </html>

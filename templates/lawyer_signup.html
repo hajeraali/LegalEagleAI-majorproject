@@ -69,7 +69,8 @@
             showBtn.style.color = "#222";
           }
          });
-         const dashboardUrl = "{{ url_for('dashboard') }}"; 
+         const indexUrl = "{{ url_for('index') }}";
+         const dashboardUrl = "{{ url_for('dashboard') }}";
          window.firebaseConfig = {
              apiKey: "{{ firebase_api_key }}",
              authDomain: "{{ firebase_auth_domain }}",

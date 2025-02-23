@@ -63,31 +63,21 @@ textarea {
 /* Button styling */
 button[type="submit"] {
     flex: 1 1 100%; /* Full width button */
-    padding: 0.9rem; 
-    background: linear-gradient(135deg, #2d3e50, #134B70); 
+    padding: 0.75rem;
+    background-color:  #2d3e50;
     color: #fff;
-    font-size: 1.2rem; 
+    font-size: 1.1rem;
     font-weight: bold;
     border: none;
-    border-radius: 6px; 
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); 
+    transition: background-color 0.3s ease;
 }
 
 button[type="submit"]:hover {
-    background: linear-gradient(135deg, #134B70, #2d3e50); 
-    transform: scale(1.05); 
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2); 
+  
+    background-color: #2d3e50;
 }
-
-button[type="submit"]:active {
-    transform: scale(0.98); 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
 
 /* Styling for the time slot selection */
 .time-slot-container {
@@ -119,28 +109,4 @@ button[type="submit"]:active {
     background-color: #2d3e50;
     color: white;
     font-weight: bold;
-}
-
-.toast {
-    position: fixed;
-    top: 20px; /* Move to top */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%);
-    background: #4CAF50; /* Green for success */
-    color: white;
-    padding: 20px 30px; /* Increase padding for bigger size */
-    border-radius: 8px; /* Slightly larger border radius */
-    font-size: 18px; /* Increase font size */
-    opacity: 0;
-    transition: opacity 0.5s, transform 0.3s ease-in-out;
-    z-index: 1000;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-
-.toast.error {
-    background: #f44336; /* Red for errors */
 }

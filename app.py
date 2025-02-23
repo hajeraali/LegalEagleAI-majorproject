@@ -2,7 +2,8 @@ import os
 import re
 import nltk
 import pandas as pd
-from flask import Flask, render_template, request, jsonify, g
+from flask import Flask, render_template, request, jsonify, g, session, redirect, url_for, flash
+from flask_session import Session
 from transformers import pipeline
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
@@ -15,13 +16,35 @@ from psycopg2 import sql
 from flask_mailman import Mail
 from flask_mailman.message import EmailMessage
 import google.generativeai as genai
-
+from admin import admin_bp, init_mail
 from check_env import init_mail, send_email 
 from dotenv import load_dotenv
 
-load_dotenv()  
+load_dotenv()
 app = Flask(__name__)
-init_mail(app)
+app.secret_key = "supersecretkey"
+init_mail(app) 
+
+# ✅ Configure Flask Sessions
+app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'  # Can also use 'redis' or 'memcached' for better persistence
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+Session(app)  # ✅ Initialize Session
+
+# ✅ Register Blueprints
+app.register_blueprint(admin_bp)
+
+@app.route('/admin_dashboard')
+def admin_dashboard():
+    if not session.get("admin_logged_in"):
+        return render_template('admin_dashboard.html', admin_logged_in=False)
+    return render_template('admin_dashboard.html', admin_logged_in=True)
+
+# ✅ Check Admin Session Before Loading Dashboard
+@app.route('/admin_check', methods=['GET'])
+def admin_check():
+    return jsonify({"logged_in": session.get("admin_logged_in", False)})
 
 # Download NLTK resources
 nltk.download('punkt')
@@ -35,41 +58,15 @@ classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnl
 
 # Define practice areas
 practice_areas = [
-    # Existing practice areas
-    
-    'Corporate Lawyer',
-    'Civil Lawyer',
-    'Criminal Lawyer',
-    'Constitutional Lawyer',
-    'Administrative Lawyer',
-    'Business Lawyer',
-    'Intellectual Property Lawyer',
-    'Patent Lawyer',
-    'Trademark Lawyer',
-    'Copyright Lawyer',
-    'Environmental Lawyer',
-    'Banking and Finance Lawyer',
-    'Bankruptcy Lawyer',
-    'Civil Rights Lawyer',
-    'Family Lawyer',
-    'Employment Lawyer',
-    'Immigration Lawyer',
-    'Personal Injury Lawyer',
-    'Tax Lawyer',
-    'Military Lawyer',
-    'International Lawyer',
-    'Municipal Lawyer',
-    'Animal Lawyer',
-    'Education Lawyer',
-    'Elder Lawyer',
-    'Entertainment Lawyer',
-    'Sports Lawyer',
-    'Securities Lawyer',
-    'Health Lawyer',
-    'Real Estate Lawyer',
-    'Maritime Lawyer',
-    'Labor Lawyer'
-
+    'Corporate Lawyer', 'Civil Lawyer', 'Criminal Lawyer', 'Constitutional Lawyer',
+    'Administrative Lawyer', 'Business Lawyer', 'Intellectual Property Lawyer',
+    'Patent Lawyer', 'Trademark Lawyer', 'Copyright Lawyer', 'Environmental Lawyer',
+    'Banking and Finance Lawyer', 'Bankruptcy Lawyer', 'Civil Rights Lawyer',
+    'Family Lawyer', 'Employment Lawyer', 'Immigration Lawyer', 'Personal Injury Lawyer',
+    'Tax Lawyer', 'Military Lawyer', 'International Lawyer', 'Municipal Lawyer',
+    'Animal Lawyer', 'Education Lawyer', 'Elder Lawyer', 'Entertainment Lawyer',
+    'Sports Lawyer', 'Securities Lawyer', 'Health Lawyer', 'Real Estate Lawyer',
+    'Maritime Lawyer', 'Labor Lawyer'
 ]
 
 # Initialize stemmer and stopwords
@@ -88,40 +85,38 @@ def extract_text_from_file(file):
     try:
         if file.filename.endswith('.pdf'):
             reader = PdfReader(file)
-            text = ''
-            for page in reader.pages:
-                text += page.extract_text() or ''  # Handle empty page text
+            text = ''.join(page.extract_text() or '' for page in reader.pages)
             return text.strip()
         elif file.filename.endswith('.docx'):
             doc = docx.Document(file)
             text = '\n'.join([para.text for para in doc.paragraphs])
             return text.strip()
     except Exception as e:
-        print(f"Error extracting text from file: {e}")  # Debugging log
+        print(f"Error extracting text from file: {e}")
     return ''
+
 
 
 @app.route('/recommend_lawyers', methods=['GET', 'POST'])
 def recommend_lawyers_route():
     lawyer_recommendations = None
     error_message = None
-    sort_order = None  # Initialize sort order variable
+    sort_order = None  
 
     if request.method == 'POST':
-        user_query = None
-        min_price = None
-        max_price = None
-        location = None  # Initialize location variable
+        user_query, min_price, max_price, location = None, None, None, None
 
         try:
             # Handle typed query
-            if 'query' in request.form and request.form['query']:
-                user_query = request.form['query']
+            if 'query' in request.form and request.form['query'].strip():
+                user_query = request.form['query'].strip()
             
             # Handle document upload
-            if 'upload' in request.files and request.files['upload']:
+            if 'upload' in request.files and request.files['upload'].filename:
                 file = request.files['upload']
-                if file and (file.filename.endswith('.pdf') or file.filename.endswith('.docx')):
+                
+                # Ensure file is actually a file and not empty
+                if file and file.filename.endswith(('.pdf', '.docx')):
                     document_text = extract_text_from_file(file)
                     if document_text:
                         user_query = document_text
@@ -129,31 +124,30 @@ def recommend_lawyers_route():
                         error_message = "Failed to extract text from the uploaded document."
             
             # Get the price range if provided
-            if 'min_price' in request.form and 'max_price' in request.form:
-                min_price = request.form.get('min_price')
-                max_price = request.form.get('max_price')
+            min_price = request.form.get('min_price')
+            max_price = request.form.get('max_price')
 
-            # Get the sort order if provided
+            # Get sorting order
             sort_order = request.form.get('sort_order')
 
-            # Get the location if provided
-            if 'location' in request.form and request.form['location']:
-                location = request.form['location']
+            # Get location filter
+            location = request.form.get('location')
 
+            # Proceed only if user_query is valid
             if user_query:
                 lawyer_recommendations = recommend_lawyers(user_query, min_price, max_price, sort_order, location)
             else:
                 error_message = "No query provided. Please type a query or upload a valid document."
+
         except Exception as e:
             error_message = f"An error occurred: {str(e)}"
-            print(error_message)  # Debug log
+            print(error_message)
 
     return render_template(
         'recommend_lawyers.html',
         recommended_lawyers=lawyer_recommendations,
         error_message=error_message,
     )
-
     
 # Configure the API key
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
@@ -172,10 +166,23 @@ def generate():
             return jsonify({"error": "Please provide a valid question."}), 400
 
         # Check if the user is asking for lawyer recommendations
-        if "recommend lawyer" in user_question or "find lawyer" in user_question:
-            return jsonify({
-                "response": 'I can help you find a lawyer! <a href="/client_login">Recommend</a>'
-            })
+        # List of keyword phrases that should trigger redirection
+        trigger_phrases = [
+            "recommend lawyer", "find me a lawyer", "suggest a lawyer",
+            "need a lawyer", "best lawyer for", "hire a lawyer", "find a lawyer", 
+            "suggest lawyer"
+        ]
+
+        # Check if any of the trigger phrases appear **consecutively** in the query
+        if any(phrase in user_question for phrase in trigger_phrases):
+            if session.get("user_logged_in"):  # Check if user is logged in
+                return jsonify({
+                    "response": 'I can help you find a lawyer!<a href="/recommend_lawyers.html">Recommend</a>'
+                })
+            else:
+                return jsonify({
+                    "response": 'I can help you find a lawyer! <a href="/client_login">Recommend</a>'
+                })
 
         # Set up the chatbot prompt
         summarization_prompt = f"You are a chatbot that gives legal advice only if asked. Otherwise, answer the following question in simple answers and in no more than 70 words: {user_question}"
@@ -237,41 +244,41 @@ def dashboard():
 
 
 def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None, location=None):
-    # Preprocess the query
+    """Recommend lawyers based on user query."""
     cleaned_query = preprocess_query(query)
 
     if not cleaned_query.strip():
         raise ValueError("The query is empty after preprocessing.")
 
-    # Use zero-shot classification to identify the practice areas
+    # Use zero-shot classification to identify the practice area
     classification = classifier(cleaned_query, practice_areas)
     recommended_practice_area = classification['labels'][0]
 
-    # Filter lawyers based on the recommended practice area
+    # Filter lawyers based on the practice area
     recommendations = data[data['Practice_area'] == recommended_practice_area]
 
-    # Ensure 'Nominal_fees_per_hearing' is of numeric type
-    recommendations.loc[:, 'Nominal_fees_per_hearing'] = pd.to_numeric(recommendations['Nominal_fees_per_hearing'], errors='coerce')
+    # Ensure 'Nominal_fees_per_hearing' is numeric
+    recommendations.loc[:, 'Nominal_fees_per_hearing'] = pd.to_numeric(
+        recommendations['Nominal_fees_per_hearing'], errors='coerce'
+    )
 
-    # Filter by nominal fees per hearing if a range is provided
+    # Filter by price range if provided
     if min_price is not None and max_price is not None:
         try:
             min_price = float(min_price)
             max_price = float(max_price)
-
             recommendations = recommendations[
                 (recommendations['Nominal_fees_per_hearing'] >= min_price) &
                 (recommendations['Nominal_fees_per_hearing'] <= max_price)
             ]
         except ValueError:
-            # Handle conversion errors
-            pass
+            pass  # Ignore price filtering errors
 
-    # Filter recommendations by location if provided
+    # Filter by location if provided
     if location:
         recommendations = recommendations[recommendations['Location'].str.contains(location, case=False, na=False)]
 
-    # Sort recommendations based on user selection
+    # Sort recommendations
     if sort_order == 'low_to_high':
         recommendations = recommendations.sort_values(by='Nominal_fees_per_hearing', ascending=True)
     elif sort_order == 'high_to_low':
@@ -377,9 +384,10 @@ def book_appointment():
         email_sent = send_email(client_name, client_email, appointment_date, appointment_time, case_details, lawyer_name)
 
         if email_sent:
-            return jsonify({"message": "Appointment booked successfully, and confirmation email sent!"})
+            return jsonify({"success": True, "message": "Appointment booked successfully, and confirmation email sent!"})
         else:
-            return jsonify({"message": "Appointment booked, but email confirmation failed."}), 500
+            return jsonify({"success": False, "message": "Appointment booked, but email confirmation failed."}), 500
+    
 
     finally:
         # Ensure the database connection is closed

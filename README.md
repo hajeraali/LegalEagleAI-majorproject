@@ -7,4 +7,4 @@ admin page info:
 username: admin
 password: admin123
 
-.env file is updated on mail and project drive
+.env and 3 more files is updated on mail and project drive download and add them to project folder

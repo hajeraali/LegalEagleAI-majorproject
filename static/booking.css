@@ -1,38 +1,52 @@
-/* Basic reset and styling */
+/* Import a professional font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Body Styling - Background Image with Overlay */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
+    font-family: 'Poppins', sans-serif;
+    background: url('../static/images/appointment1.jpg') no-repeat center center/cover; /* Use your background image */
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
     margin: 0;
+    position: relative;
 }
 
+/* Overlay to enhance readability */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Dark overlay */
+    z-index: 0;
+}
 
-/* Centered booking container with a wider horizontal form */
+/* Glassmorphism Booking Container */
 .booking-container {
-    max-width: 700px; /* Increased width */
-    background-color: #fff;
+    max-width: 700px;
+    background: rgba(255, 255, 255, 0.15); /* Transparent white */
+    backdrop-filter: blur(12px); /* Glass effect */
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
-
-
-
-/* Title styling */
+/* Title Styling */
 h2 {
     text-align: center;
+    font-size: 2rem;
+    color: #EEEEEE;
     margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    color: #333;
 }
 
-
-
-
+/* Form Styling */
 /* Form input and label styling */
 form {
     display: flex;
@@ -47,7 +61,7 @@ form {
 label {
     flex: 1 1 45%; /* Make labels inline with inputs */
     font-weight: bold;
-    color: #555;
+    color: #ffffff;
 }
 
 
@@ -61,7 +75,7 @@ input[type="time"],
 textarea {
     flex: 1 1 45%; /* Inputs align next to labels */
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid #ffffff;
     border-radius: 4px;
     font-size: 1rem;
     margin-bottom: 1rem;
@@ -79,12 +93,45 @@ textarea {
 
 
 
-/* Button styling */
+/* Placeholder Text Color */
+input::placeholder, textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Time Slot Selection */
+.time-slot-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.time-slot {
+    padding: 12px 18px;
+    border: 2px solid #EEEEEE;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-align: center;
+    min-width: 110px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.time-slot:hover,
+.time-slot.selected {
+    background-color: #508C9B;
+    color: white;
+    font-weight: bold;
+}
+
+/* Submit Button */
 button[type="submit"] {
-    flex: 1 1 100%; /* Full width button */
+    flex: 1 1 100%; 
     padding: 0.9rem;
-    background: linear-gradient(135deg, #2d3e50, #134B70);
-    color: #fff;
+    background: linear-gradient(135deg, #508C9B, #134B70);
+    color: white;
     font-size: 1.2rem;
     font-weight: bold;
     border: none;
@@ -93,56 +140,43 @@ button[type="submit"] {
     transition: all 0.3s ease-in-out;
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 
-
-
-
 button[type="submit"]:hover {
-    background: linear-gradient(135deg, #134B70, #2d3e50);
+    background: linear-gradient(135deg, #134B70, #508C9B);
     transform: scale(1.05);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 
 button[type="submit"]:active {
     transform: scale(0.98);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-
-/* Styling for the time slot selection */
-.time-slot-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 1rem;
-    justify-content: center;
-}
-
-
-.time-slot {
-    padding: 10px 15px;
-    border: 2px solid #2d3e50;
-    border-radius: 6px;
-    background-color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-align: center;
-    min-width: 100px;
-}
-
-.time-slot:hover {
-    background-color: #2d3e50;
+/* Toast Notification */
+.toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
     color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.5s, transform 0.3s ease-in-out;
+    z-index: 1000;
 }
 
-.time-slot.selected {
-    background-color: #2d3e50;
-    color: white;
-    font-weight: bold;
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
+
+.toast.error {
+    background: #f44336;
+}
+
 
 .toast {
     position: fixed;

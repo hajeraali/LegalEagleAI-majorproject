@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Appointment</title>
     <link rel="stylesheet" href="static/booking.css">
-    
+   
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
@@ -32,7 +32,6 @@
             <div class="time-slot-container" id="timeSlotContainer"></div>
             <input type="hidden" id="appointmentTime" required> <!-- Stores selected time -->
 
-
             <label for="caseDetails">Case Details:</label>
             <textarea id="caseDetails" placeholder="Enter relevant information about your case" required></textarea>
 
@@ -42,13 +41,12 @@
 
     <!-- Flatpickr JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    
+   
     <script>
         // Initialize Flatpickr on the appointmentDate input
         flatpickr("#appointmentDate", {
             minDate: "today",  // Prevents past dates
         });
-
 
         const availableTimeSlots = ["09:00 AM", "9:30 AM", "11:00 PM", "2:00 PM", "3:30 PM", "5:00 PM"];
         const timeSlotContainer = document.getElementById("timeSlotContainer");
@@ -60,14 +58,14 @@
             btn.classList.add("time-slot");
             btn.textContent = time;
             btn.dataset.value = convertTo24Hour(time);
-            
+           
             btn.addEventListener("click", () => {
                 // Remove selected class from all buttons
                 document.querySelectorAll(".time-slot").forEach(slot => slot.classList.remove("selected"));
-                
+               
                 // Mark the clicked button as selected
                 btn.classList.add("selected");
-                
+               
                 // Store selected time in hidden input
                 appointmentTimeInput.value = btn.dataset.value;
             });
@@ -96,16 +94,33 @@
             return `${hours}:${minutes}`;
         }
 
+        // Function to show toast notification
+        function showToast(message, type = "success") {
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+           
+            document.body.appendChild(toast);
+           
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100); // Small delay for animation
+           
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 500);
+            }, 3000); // Auto-hide after 3 seconds
+        }
+
         // Handle form submission
         document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
             e.preventDefault(); // Prevent page refresh
-            
-            // Collect form data
+
             const appointmentData = {
                 appointmentDate: document.getElementById('appointmentDate').value,
                 clientName: document.getElementById('clientName').value,
                 clientEmail: document.getElementById('clientEmail').value,
-                lawyerName: document.getElementById('lawyerName').value,  // Add lawyer name
+                lawyerName: document.getElementById('lawyerName').value,
                 appointmentTime: document.getElementById('appointmentTime').value,
                 caseDetails: document.getElementById('caseDetails').value
             };
@@ -117,19 +132,22 @@
                     body: JSON.stringify(appointmentData)
                 });
 
-                const data = await response.json();
-
-                if (data.success) {
-                    alert("Appointment booked successfully!");
-                    window.location.href = "/afterlogin"; // Redirect on success
+                if (response.ok) {
+                    showToast("✅ Appointment booked successfully! Please check your email for confirmation", "success");
+                    document.getElementById('appointmentForm').reset();
+                    setTimeout(() => {
+                        window.location.href = "/afterlogin";
+                    }, 2000); // Adjust delay (2000ms = 3s)
                 } else {
-                    alert("Error booking appointment: " + data.message);
+                    const errorData = await response.json();
+                    showToast("❌ Error: " + errorData.message, "error");
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert("Error booking appointment. Please try again.");
+                showToast("❌ Error booking appointment. Please try again.", "error");
             }
         });
+
     </script>
 </body>
 </html>

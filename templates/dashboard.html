@@ -21,35 +21,109 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/aos.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     
   </head>
   <body>
-    <div class="d-inline-block d-lg-none ml-md-0 mr-auto py-3"><a href="#" class="site-menu-toggle js-menu-toggle text-white"><span class="icon-menu h3"></span></a></div>
 
-                <ul class="site-menu js-clone-nav d-none d-lg-block">
-                  <li class="active">
-                    <a href="{{ url_for('index') }}">Home</a>
-                  </li>
-                  <li><a href="#">About us</a></li>
-                  <li><a href="#">Services</a></li>
-                  <li><a href="#">Contact us</a></li>
-                  <li>
-                    <p><input type="submit" class="btn-primary px-3 py-2" id="logout" value="LOGOUT"></p></li>
-                </ul>
-              </nav>
+    <div class="site-navbar mt-4">
+        <div class="row d-flex justify-content-between align-items-center" style="margin-left: 8% ; margin-right: 8%">
+            <div class="col-auto">
+                <h1 class="mb-0">
+                    <a href="{{ url_for('index') }}" class="h2 mb-0" style="color: black;">
+                        <strong>LegalEagle AI<span class="text-primary">.</span></strong>
+                    </a>
+                </h1>
+            </div>
+        </div>
     </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <input type="file" id="profilePicInput" accept="image/*" hidden>
+            <img id="profilePic" class="profile-pic" src="static/images/default-avatar.png" alt="Profile Picture">
+            <h2 id="lawyerName">Loading...</h2>
+            <p id="lawyerEmail">Loading...</p>
+            <p>Bar Council ID: <span id="barCouncilID">Loading...</span></p>
+    
+            <div class="sidebar-menu">
+                <div class="menu-item" onclick="openEditProfile()"><span>Edit Profile</span><span class="icon">✏️</span></div>
+                <div class="menu-item" id="logout"><span>Logout</span><span class="icon">ᯓ🏃🏻‍♀️‍➡️</span></div>
+            </div>
+        </div>
+    
+        <div class="main-content">
+            <h3>Personal Information</h3>
+            <div class="info-section"><strong>Name:</strong> <span id="displayName">Not Provided</span></div>
+            <div class="info-section"><strong>Contact No.:</strong> <span id="displayContact">Not Provided</span></div>
+            <div class="info-section"><strong>Address:</strong> <span id="displayAddress">Not Provided</span></div>
+    
+            <h3>Information on Firm</h3>
+            <div class="info-section"><strong>Firm Name:</strong> <span id="displayFirmName">Not Provided</span></div>
+            <div class="info-section"><strong>Firm Size:</strong> <span id="displayFirmSize">Not Provided</span></div>
+            <div class="info-section"><strong>Affiliation:</strong> <span id="displayAffiliation">Not Provided</span></div>
+    
+            <h3>Professional Information</h3>
+            <div class="info-section"><strong>Practice Area:</strong> <span id="displayPracticeArea">Not Provided</span></div>
+            <div class="info-section"><strong>Designation:</strong> <span id="displayDesignation">Not Provided</span></div>
+            <div class="info-section"><strong>Years of Experience:</strong> <span id="displayExperience">Not Provided</span></div>
+            <div class="info-section"><strong>Successful Cases:</strong> <span id="displayCases">Not Provided</span></div>
+            <div class="info-section"><strong>Nominal Fees:</strong> <span id="displayFees">Not Provided</span></div>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditProfile()">&times;</span>
+            <form id="editProfileForm">
+                <h3>Personal Information</h3>
+                <label>Name:</label>
+                <input type="text" id="name" required>
+                <label>Email:</label>
+                <input type="email" id="email" disabled>
+                <label>Contact No.:</label>
+                <input type="text" id="contact">
+                <label>Address:</label>
+                <input type="text" id="address">
+    
+                <h3>Information on Firm</h3>
+                <label>Firm Name:</label>
+                <input type="text" id="firmName">
+                <label>Firm Size:</label>
+                <input type="text" id="firmSize">
+                <label>Affiliation:</label>
+                <input type="text" id="affiliation">
+    
+                <h3>Professional Information</h3>
+                <label>Practice Area:</label>
+                <input type="text" id="practiceArea">
+                <label>Designation:</label>
+                <input type="text" id="designation">
+                <label>Years of Experience:</label>
+                <input type="number" id="experience">
+                <label>Successful Cases:</label>
+                <input type="number" id="cases">
+                <label>Nominal Fees:</label>
+                <input type="text" id="fees">
+                
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    
+    <script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script>
-        // Pass the URL dynamically from Flask to a global JavaScript variable
-        const indexUrl = "{{ url_for('index') }}";
+      const indexUrl = "{{ url_for('index') }}";
         window.firebaseConfig = {
-          apiKey: "{{ firebase_api_key }}",
-          authDomain: "{{ firebase_auth_domain }}",
-          projectId: "{{ firebase_project_id }}",
-          storageBucket: "{{ firebase_storage_bucket }}",
-          messagingSenderId: "{{ firebase_messaging_sender_id }}",
-          appId: "{{ firebase_app_id }}"
-      };
-      </script>
-      <script type="module" src="{{ url_for('static', filename='js/firebase_Auth.js') }}"></script>
+            apiKey: "{{ firebase_api_key }}",
+            authDomain: "{{ firebase_auth_domain }}",
+            projectId: "{{ firebase_project_id }}",
+            storageBucket: "{{ firebase_storage_bucket }}",
+            messagingSenderId: "{{ firebase_messaging_sender_id }}",
+            appId: "{{ firebase_app_id }}"
+        };
+    </script>
+    <script type="module" src="{{ url_for('static', filename='js/firebase_Auth.js') }}"></script>    
     </body>
 </html>

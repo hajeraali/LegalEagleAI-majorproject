@@ -1,9 +1,9 @@
 /* Import a professional font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Lora:wght@400;500;600;700&display=swap');
 
 /* Body Styling - Background Image with Overlay */
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Lora', serif;
     background: url('../static/images/appointment1.jpg') no-repeat center center/cover; /* Use your background image */
     display: flex;
     align-items: center;
@@ -54,18 +54,14 @@ form {
     gap: 1rem; /* Space between form fields */
 }
 
-
-
-
 /* Label styling */
 label {
     flex: 1 1 45%; /* Make labels inline with inputs */
     font-weight: bold;
     color: #ffffff;
+    text-align: left;
+    font-size: 1.2rem;
 }
-
-
-
 
 /* Input field styling */
 input[type="text"],
@@ -77,21 +73,15 @@ textarea {
     padding: 0.5rem;
     border: 1px solid #ffffff;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     margin-bottom: 1rem;
 }
-
-
-
 
 /* Full-width styling for 'Additional Information' */
 textarea {
     flex: 1 1 100%;
     min-height: 80px;
 }
-
-
-
 
 /* Placeholder Text Color */
 input::placeholder, textarea::placeholder {
@@ -128,7 +118,9 @@ input::placeholder, textarea::placeholder {
 
 /* Submit Button */
 button[type="submit"] {
-    flex: 1 1 100%; 
+    /*flex: 1 1 100%; */  
+    display: block; /* Ensures it's treated as a block element */
+    margin: 0 auto; /* Centers it horizontally */
     padding: 0.9rem;
     background: linear-gradient(135deg, #508C9B, #134B70);
     color: white;

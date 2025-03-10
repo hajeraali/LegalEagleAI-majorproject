@@ -80,6 +80,7 @@ def preprocess_query(query):
     tokens = [stemmer.stem(word) for word in tokens if word not in stop_words]
     return ' '.join(tokens)
 
+
 def extract_text_from_file(file):
     """Extract text from a PDF or DOCX file."""
     try:
@@ -211,7 +212,8 @@ def load_firebase_config():
         'firebase_project_id': os.getenv('FIREBASE_PROJECT_ID'),
         'firebase_storage_bucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
         'firebase_messaging_sender_id': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
-        'firebase_app_id': os.getenv('FIREBASE_APP_ID')
+        'firebase_app_id': os.getenv('FIREBASE_APP_ID'),
+        'firebase_database_url': os.getenv('FIREBASE_DATABASE_URL')
     }
     
 @app.route('/')
@@ -285,7 +287,6 @@ def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None, lo
         recommendations = recommendations.sort_values(by='Nominal_fees_per_hearing', ascending=False)
 
     return recommendations
-
 
 # Database configuration (replace karo with ur actual database credentials)
 DB_HOST = 'localhost'

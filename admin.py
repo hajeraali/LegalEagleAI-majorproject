@@ -204,5 +204,3 @@ def update_user():
     # Update user data
     ref.update(update_data)
     return jsonify({"message": f"{user_type.capitalize()} updated successfully!"})
-
-

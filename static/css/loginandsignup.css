@@ -40,6 +40,7 @@
   font-family: 'Montserrat',sans-serif;
 }
 .field{
+  margin-top: 20px;
   position: relative;
   border-radius: 5px;
   height: 45px;

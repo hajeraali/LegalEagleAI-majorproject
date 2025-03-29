@@ -158,30 +158,30 @@ document.addEventListener('DOMContentLoaded', () => {
         {% if recommended_lawyers is not none %}
             <h2 class="mt-5">Recommended Lawyers:</h2>
             <div class="row">
-                {% for lawyer in recommended_lawyers.iterrows() %}
+                {% for lawyer in recommended_lawyers %}
                     <div class="col-md-4"> <!-- Card in a responsive grid -->
                         <div class="card">
                             <div class="card-header">
-                                {{ lawyer[1]['Lawyer_name'] }}
+                                {{ lawyer['Lawyer_name'] }}
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">{{ lawyer[1]['Practice_area'] }}</h5>
-                                <p class="card-text"><strong>Firm Name:</strong> {{ lawyer[1]['Firm_name'] }}</p>
-                                <p class="card-text"><strong>Location:</strong> {{ lawyer[1]['Location'] }}</p>
+                                <h5 class="card-title">{{ lawyer['Practice_area'] }}</h5>
+                                <p class="card-text"><strong>Firm Name:</strong> {{ lawyer['Firm_name'] }}</p>
+                                <p class="card-text"><strong>Location:</strong> {{ lawyer['Location'] }}</p>
                                 
                                
-                                <p class="card-text"><strong>Years of Experience:</strong> {{ lawyer[1]['Years_of_Experience'] }}</p>
-                                <p class="card-text"><strong>Total Cases:</strong> {{ lawyer[1]['Total_cases'] }}</p>
-                                <p class="card-text"><strong>Successful Cases:</strong> {{ lawyer[1]['Successful_cases'] }}</p>
-                                <p class="card-text"><strong>Affiliation:</strong> {{ lawyer[1]['Affiliation'] }}</p>
+                                <p class="card-text"><strong>Years of Experience:</strong> {{ lawyer['Years_of_Experience'] }}</p>
+                                <p class="card-text"><strong>Total Cases:</strong> {{ lawyer['Total_cases'] }}</p>
+                                <p class="card-text"><strong>Successful Cases:</strong> {{ lawyer['Successful_cases'] }}</p>
+                                <p class="card-text"><strong>Affiliation:</strong> {{ lawyer['Affiliation'] }}</p>
                                 <p class="card-text"><strong>Client Reviews:</strong></p>
-                                {% for review in lawyer[1]['Client_reviews'].split('|') %}
+                                {% for review in lawyer['Client_reviews'].split('|') %}
                                     <div class="review">{{ review.strip() }}</div>
                                 {% endfor %}
-                                <p class="card-text"><strong>Nominal Fees per Hearing:</strong> {{ lawyer[1]['Nominal_fees_per_hearing'] }}</p>
+                                <p class="card-text"><strong>Nominal Fees per Hearing:</strong> {{ lawyer['Nominal_fees_per_hearing'] }}</p>
                                 
                                  <!-- Book Appointment Button -->
-                                 <button class="btn btn-primary mt-3" data-lawyer-name="{{ lawyer[1]['Lawyer_name'] }}" onclick="bookAppointment(this)">Book Appointment</button>
+                                 <button class="btn btn-primary mt-3" data-lawyer-name="{{ lawyer['Lawyer_name'] }}" onclick="bookAppointment(this)">Book Appointment</button>
 
                             </div>
                         </div>

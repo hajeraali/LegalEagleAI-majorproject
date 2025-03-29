@@ -2,6 +2,7 @@ import os
 import re
 import nltk
 import pandas as pd
+from firebase_admin import db
 from flask import Flask, render_template, request, jsonify, g, session, redirect, url_for, flash
 from flask_session import Session
 from transformers import pipeline
@@ -16,8 +17,9 @@ from psycopg2 import sql
 from flask_mailman import Mail
 from flask_mailman.message import EmailMessage
 import google.generativeai as genai
-from admin import admin_bp, init_mail
+from admin import admin_bp, init_mail, db
 from check_env import init_mail, send_email 
+from case_tracking import case_tracking_bp
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,6 +37,9 @@ Session(app)  # ✅ Initialize Session
 # ✅ Register Blueprints
 app.register_blueprint(admin_bp)
 
+# ✅ Register Blueprints
+app.register_blueprint(case_tracking_bp)
+
 @app.route('/admin_dashboard')
 def admin_dashboard():
     if not session.get("admin_logged_in"):
@@ -46,12 +51,26 @@ def admin_dashboard():
 def admin_check():
     return jsonify({"logged_in": session.get("admin_logged_in", False)})
 
+@app.route('/case_tracking')
+def case_tracking_page():
+    return render_template('case_tracking.html')
+
+
 # Download NLTK resources
 nltk.download('punkt')
 nltk.download('stopwords')
 
 # Load dataset
-data = pd.read_csv('lawyers_dataset.csv')
+def fetch_lawyer_profiles():
+    ref = db.reference("lawyers_profile/lawyer_profile")  # Use reference, not collection
+    lawyers = ref.get()  # Fetch all lawyers' data
+
+    if lawyers:
+        return list(lawyers.values())  # Convert dictionary values to a list
+    else:
+        return []
+    
+
 
 # Load a pre-trained model for text classification
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
@@ -246,45 +265,48 @@ def dashboard():
 
 
 def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None, location=None):
-    """Recommend lawyers based on user query."""
+    """Fetch lawyer details from Firebase and recommend based on query."""
     cleaned_query = preprocess_query(query)
-
     if not cleaned_query.strip():
         raise ValueError("The query is empty after preprocessing.")
 
-    # Use zero-shot classification to identify the practice area
+    # Identify practice area using zero-shot classification
     classification = classifier(cleaned_query, practice_areas)
     recommended_practice_area = classification['labels'][0]
 
-    # Filter lawyers based on the practice area
-    recommendations = data[data['Practice_area'] == recommended_practice_area]
+    # Fetch all lawyers from Firebase
+    ref = db.reference("lawyers_profile/lawyer_profile")
+    all_lawyers = ref.get() or {}  # Handle case where no data exists
+    lawyer_list = list(all_lawyers.values())  # Convert dictionary values to a list
 
-    # Ensure 'Nominal_fees_per_hearing' is numeric
-    recommendations.loc[:, 'Nominal_fees_per_hearing'] = pd.to_numeric(
-        recommendations['Nominal_fees_per_hearing'], errors='coerce'
-    )
+    # Filter by practice area
+    recommendations = [
+        lawyer for lawyer in lawyer_list if lawyer.get("Practice_area") == recommended_practice_area
+    ]
 
-    # Filter by price range if provided
+    # Convert price to float and filter by price range
     if min_price is not None and max_price is not None:
         try:
-            min_price = float(min_price)
-            max_price = float(max_price)
-            recommendations = recommendations[
-                (recommendations['Nominal_fees_per_hearing'] >= min_price) &
-                (recommendations['Nominal_fees_per_hearing'] <= max_price)
+            min_price, max_price = float(min_price), float(max_price)
+            recommendations = [
+                lawyer for lawyer in recommendations
+                if min_price <= float(lawyer.get("Nominal_fees_per_hearing", 0)) <= max_price
             ]
         except ValueError:
-            pass  # Ignore price filtering errors
+            pass  # Ignore conversion errors
 
-    # Filter by location if provided
+    # Filter by location
     if location:
-        recommendations = recommendations[recommendations['Location'].str.contains(location, case=False, na=False)]
+        recommendations = [
+            lawyer for lawyer in recommendations
+            if location.lower() in lawyer.get("Location", "").lower()
+        ]
 
-    # Sort recommendations
+    # Sort recommendations by price
     if sort_order == 'low_to_high':
-        recommendations = recommendations.sort_values(by='Nominal_fees_per_hearing', ascending=True)
+        recommendations.sort(key=lambda x: float(x.get("Nominal_fees_per_hearing", 0)))
     elif sort_order == 'high_to_low':
-        recommendations = recommendations.sort_values(by='Nominal_fees_per_hearing', ascending=False)
+        recommendations.sort(key=lambda x: float(x.get("Nominal_fees_per_hearing", 0)), reverse=True)
 
     return recommendations
 

@@ -64,13 +64,16 @@
     
             <div class="sidebar-menu">
                 <div class="menu-item" onclick="openEditProfile()"><span>Edit Profile</span><span class="icon">✏️</span></div>
-                <div class="menu-item" id="logout"><span>Logout</span><span class="icon">ᯓ🏃🏻‍♀️‍➡️</span></div>
+                <div class="menu-item" id="logout" ><span>Logout</span><span class="icon">ᯓ🏃🏻‍♀️‍➡️</span></div>
             </div>
+            <button class="btn btn-primary" onclick="location.href='{{ url_for('case_tracking_page') }}'">
+                Case Tracking
+            </button>            
         </div>
     
         <div class="main-content">
             <h3>Personal Information</h3>
-            <div class="info-section"><strong>Name:</strong> <span id="displayName">Not Provided</span></div>
+
             <div class="info-section"><strong>Contact No.:</strong> <span id="displayContact">Not Provided</span></div>
             <div class="info-section"><strong>Address:</strong> <span id="displayAddress">Not Provided</span></div>
     
@@ -95,9 +98,9 @@
             <form id="editProfileForm">
                 <h3>Personal Information</h3>
                 <label>Name:</label>
-                <input type="text" id="name" required>
+                <input type="text" id="lawyername" required>
                 <label>Email:</label>
-                <input type="email" id="email" disabled>
+                <input type="email" id="lawyerEmail" disabled>
                 <label>Contact No.:</label>
                 <input type="text" id="contact">
                 <label>Address:</label>

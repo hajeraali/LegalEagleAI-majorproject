@@ -109,7 +109,6 @@
         h3{
             text-align: center;
         }
-        
     </style>
 </head>
 <body>
@@ -127,7 +126,7 @@
             </div>
         </div>
 
-                <!-- Navigation Tabs -->
+        <!-- Navigation Tabs -->
         <ul class="nav nav-tabs" id="adminTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <a class="nav-link active" id="lawyers-tab" data-bs-toggle="tab" href="#lawyers" role="tab" aria-controls="lawyers" aria-selected="true">Lawyers</a>
@@ -135,7 +134,7 @@
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="users-tab" data-bs-toggle="tab" href="#users" role="tab" aria-controls="users" aria-selected="false">Users</a>
             </li>
-            <li>
+            <li class="nav-item">
                 <button class="btn btn-primary" onclick="location.href='{{ url_for('case_tracking_page') }}'">
                     Case Tracking
                 </button>
@@ -175,6 +174,7 @@
                                         <th>Bar Council ID</th>
                                         <th>Status</th>
                                         <th>Actions</th>
+                                        <th>Profile</th>
                                     </tr>
                                 </thead>
                                 <tbody id="approved-lawyer-list"></tbody>
@@ -194,6 +194,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Actions</th>
+                                    <th>Appointments</th>
                                 </tr>
                             </thead>
                             <tbody id="user-list"></tbody>
@@ -201,7 +202,7 @@
                     </div>
                 </div>
             </div>
-
+        </div>
 
         <!-- Approval Modal -->
         <div class="modal" id="approvalModal">
@@ -214,6 +215,7 @@
                 </div>
             </div>
         </div>
+        
         <!-- Delete Modal -->
         <div class="modal" id="deleteModal">
             <div class="modal-content">
@@ -233,15 +235,50 @@
     <script>
         let selectedLawyerId = null;
         let selectedLawyerIdForDelete = null;
+        let refreshInterval;
+        
+        // Add blur overlay before login
+        $('head').append(`
+            <style>
+                #login-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(255,255,255,0.8);
+                    backdrop-filter: blur(5px);
+                    z-index: 999;
+                    display: none;
+                }
+                #adminLoginModal {
+                    z-index: 1000;
+                }
+            </style>
+        `);
+        $('body').append('<div id="login-overlay"></div>');
     
         function checkAdminSession() {
+            $('#login-overlay').show();
             $.get("/admin_check", function(response) {
                 if (!response.logged_in) {
                     $("#adminLoginModal").css("display", "block");
                 } else {
-                    loadDashboard();
+                    $('#login-overlay').hide();
+                    startAutoRefresh();
                 }
             });
+        }
+    
+        function startAutoRefresh() {
+            loadDashboard();
+            refreshInterval = setInterval(loadDashboard, 30000); // 30 seconds
+        }
+        
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
         }
     
         function login() {
@@ -257,7 +294,8 @@
                 data: JSON.stringify(data),
                 success: function(response) {
                     $("#adminLoginModal").css("display", "none");
-                    loadDashboard();
+                    $('#login-overlay').hide();
+                    startAutoRefresh();
                 },
                 error: function(xhr) {
                     alert("Invalid Credentials");
@@ -266,6 +304,7 @@
         }
     
         function logout() {
+            stopAutoRefresh();
             $.post("/admin_logout", function() {
                 window.location.href = "/";
             });
@@ -316,6 +355,7 @@
             selectedLawyerId = null;
             $("#approvalModal").css("display", "none");
         }
+        
         function openDeleteModal(lawyerId) {
             selectedLawyerIdForDelete = lawyerId;
             $("#deleteModal").css("display", "block");
@@ -326,6 +366,13 @@
             $("#deleteModal").css("display", "none");
         }
         
+        function viewLawyerProfile(lawyerId) {
+            window.location.href = `/admin/lawyer_profile/${lawyerId}`;
+        }
+        
+        function viewClientAppointments(clientEmail) {
+            window.location.href = `/admin/client_appointments/${clientEmail}`;
+        }
     
         function approveLawyer() {
             if (selectedLawyerId) {
@@ -336,12 +383,7 @@
                     data: JSON.stringify({ lawyer_id: selectedLawyerId }),
                     success: function(response) {
                         alert("Lawyer approved successfully!");
-        
-                        // Update UI without reloading
-                        let lawyerItem = $(`#lawyer-${selectedLawyerId}`);
-                        lawyerItem.find(".badge").removeClass("bg-warning").addClass("bg-success").text("Approved");
-                        lawyerItem.find(".btn-success").remove(); // Remove the approve button
-        
+                        loadDashboard();
                         closeApprovalModal();
                     },
                     error: function(xhr) {
@@ -350,7 +392,7 @@
                 });
             }
         }
-
+    
         function confirmDeleteLawyer() {
             if (selectedLawyerIdForDelete) {
                 $.ajax({
@@ -360,7 +402,7 @@
                     data: JSON.stringify({ user_id: selectedLawyerIdForDelete, user_type: "lawyer" }),
                     success: function(response) {
                         alert("Lawyer deleted successfully!");
-                        $(`#lawyer-${selectedLawyerIdForDelete}`).remove(); // Remove from UI
+                        loadDashboard();
                         closeDeleteModal();
                     },
                     error: function(xhr) {
@@ -370,7 +412,6 @@
             }
         }
         
-            
         function loadDashboard() {
             $.get("/registered_users", function(data) {
                 // Display Users
@@ -399,6 +440,9 @@
                                 <td>
                                     <button class="btn btn-danger btn-sm" onclick="deleteUser('${id}')">Delete</button>
                                 </td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="viewClientAppointments('${user.email}')">View Appointments</button>
+                                </td>
                             </tr>
                         `);
                         }
@@ -408,21 +452,24 @@
                 // Display Lawyers
                 let approvedLawyersList = $("#approved-lawyer-list");
                 let pendingLawyersList = $("#pending-lawyer-list");
-
+    
                 approvedLawyersList.empty();
                 pendingLawyersList.empty();
-
+    
                 if (data.lawyers) {
                     Object.entries(data.lawyers).forEach(([id, lawyer]) => {
                         let isApproved = lawyer.status === true || lawyer.status === "Approved";
                         let status = isApproved ? "Approved" : "Pending";
-
+    
                         let approveButton = !isApproved 
                             ? `<button class="btn btn-success btn-sm me-2" onclick="openApprovalModal('${id}')">Approve</button>` 
                             : '';
                         
                         let deleteButton = `<button class="btn btn-danger btn-sm" onclick="openDeleteModal('${id}')">Delete</button>`;
-
+                        let profileButton = isApproved 
+                            ? `<button class="btn btn-info btn-sm" onclick="viewLawyerProfile('${id}')">View Profile</button>`
+                            : '';
+    
                         let lawyerRow = `
                             <tr id="lawyer-${id}">
                                 <td>${lawyer.name}</td>
@@ -430,9 +477,10 @@
                                 <td>${lawyer.barCouncilID}</td>
                                 <td><span class="badge bg-${isApproved ? 'success' : 'warning'}">${status}</span></td>
                                 <td>${approveButton} ${deleteButton}</td>
+                                <td>${profileButton}</td>
                             </tr>
                         `;
-
+    
                         if (isApproved) {
                             approvedLawyersList.append(lawyerRow);
                         } else {
@@ -446,11 +494,8 @@
         $(document).ready(function() {
             checkAdminSession();
             $("#confirmApproval").click(approveLawyer);
-        });
-        // Attach delete confirmation event
-        $(document).ready(function() {
             $("#confirmDelete").click(confirmDeleteLawyer);
         });
     </script>
-    </body>
+</body>
 </html>

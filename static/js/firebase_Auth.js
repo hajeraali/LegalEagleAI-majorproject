@@ -105,6 +105,8 @@ window.addEventListener('load', () => {
                 const dt = new Date();
                 await update(ref(database, `users/${user.uid}`), { last_login: dt });
 
+                localStorage.setItem('clientEmail', email);
+
                 console.log("User logged in.");
                 showModal("Login successful! Redirecting...", "success", afterloginUrl);
 

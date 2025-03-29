@@ -69,6 +69,7 @@ window.addEventListener('load', () => {
             status: lawyerCheck.status // If found in CSV: true, otherwise: false
           })
           .then(() => {
+            localStorage.setItem('lawyerBarCouncilID', barCouncilID);
             console.log("Data successfully written to the database");
     
             if (lawyerCheck.status) {
@@ -115,6 +116,8 @@ window.addEventListener('load', () => {
             if (snapshot.exists()) {
               const data = snapshot.val();
               if (data.barCouncilID === barCouncilID) {
+                localStorage.setItem('lawyerName', data.name);
+                localStorage.setItem('lawyerBarCouncilID', data.barCouncilID);
                 if (data.status) {
                   // Redirect to the dashboard if approved
                   window.location.href = dashboardUrl;

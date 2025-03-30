@@ -78,15 +78,10 @@ classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnl
 
 # Define practice areas
 practice_areas = [
-    'Corporate Lawyer', 'Civil Lawyer', 'Criminal Lawyer', 'Constitutional Lawyer',
-    'Administrative Lawyer', 'Business Lawyer', 'Intellectual Property Lawyer',
-    'Patent Lawyer', 'Trademark Lawyer', 'Copyright Lawyer', 'Environmental Lawyer',
-    'Banking and Finance Lawyer', 'Bankruptcy Lawyer', 'Civil Rights Lawyer',
-    'Family Lawyer', 'Employment Lawyer', 'Immigration Lawyer', 'Personal Injury Lawyer',
-    'Tax Lawyer', 'Military Lawyer', 'International Lawyer', 'Municipal Lawyer',
-    'Animal Lawyer', 'Education Lawyer', 'Elder Lawyer', 'Entertainment Lawyer',
-    'Sports Lawyer', 'Securities Lawyer', 'Health Lawyer', 'Real Estate Lawyer',
-    'Maritime Lawyer', 'Labor Lawyer'
+  "Criminal Law","Civil Litigation","Corporate Law","Family Law",
+  "Intellectual Property (IP) Law","Real Estate Law","Employment & Labor Law",
+  "Banking & Finance Law","Tax Law","Environmental Law","Immigration Law",
+  "Cyber Law","Personal Injury Law","Constitutional Law","Human Rights Law"
 ]
 
 # Initialize stemmer and stopwords

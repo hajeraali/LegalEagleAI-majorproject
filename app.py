@@ -51,8 +51,9 @@ def admin_dashboard():
 def admin_check():
     return jsonify({"logged_in": session.get("admin_logged_in", False)})
 
+# In your main Flask app file (app.py or similar)
 @app.route('/case_tracking')
-def case_tracking_page():
+def case_tracking():
     return render_template('case_tracking.html')
 
 

@@ -120,4 +120,6 @@ def get_client_cases(client_email):
     finally:
         cur.close()
         conn.close()
+        
+
 

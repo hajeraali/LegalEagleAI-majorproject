@@ -7,4 +7,9 @@ admin page info:
 username: admin
 password: admin123
 
+for each client use password : *Cli123
+for each lawyer use password: *Law1234
+
+new file created to sync entries from postgresql needed to be run in background on different terminal using command : "python sync_bookings_to_firebase.py"
+
 .env and 3 more files is updated on mail and project drive download and add them to project folder

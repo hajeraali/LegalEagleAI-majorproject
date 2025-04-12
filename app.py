@@ -21,6 +21,7 @@ from admin import admin_bp, init_mail, db
 from check_env import init_mail, send_email 
 from case_tracking import case_tracking_bp
 from dotenv import load_dotenv
+from firebase_admin import db
 
 load_dotenv()
 app = Flask(__name__)
@@ -392,9 +393,12 @@ def book_appointment():
         # Insert the new appointment into the database
         insert_query = """
         INSERT INTO public.clientappointments (appointment_date, client_name, client_email, lawyer_name, appointment_time, case_details)
-        VALUES (%s, %s, %s, %s, %s, %s);
+        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id;
         """
         cur.execute(insert_query, (appointment_date, client_name, client_email, lawyer_name, appointment_time, case_details))
+        
+        # Get the newly created appointment ID
+        appointment_id = cur.fetchone()[0]
         conn.commit()
 
     # Send confirmation email
@@ -402,13 +406,32 @@ def book_appointment():
        #print(f"Loaded password: {app.config.get('MAIL_PASSWORD')}")
        # Send confirmation email using the separate email service
         email_sent = send_email(client_name, client_email, appointment_date, appointment_time, case_details, lawyer_name)
-
+        
+        # ===== NEW FIREBASE SYNC CODE =====
+        try:
+            booking_data = {
+                "id": appointment_id,
+                "appointment_date": appointment_date,
+                "client_name": client_name,
+                "client_email": client_email,
+                "appointment_time": appointment_time,
+                "case_details": case_details,
+                "lawyer_name": lawyer_name,
+                "created_at": datetime.now().isoformat()
+            }
+            # Push to Firebase (auto-generates unique key)
+            sanitized_email = client_email.replace('.', ',')
+            db.reference(f'bookings/{sanitized_email}').push().set(booking_data)
+            
+        except Exception as e:
+            print(f"Firebase sync error: {e} (booking still saved to PostgreSQL)")
+        # ===== END SYNC =====
+        
         if email_sent:
             return jsonify({"success": True, "message": "Appointment booked successfully, and confirmation email sent!"})
         else:
             return jsonify({"success": False, "message": "Appointment booked, but email confirmation failed."}), 500
     
-
     finally:
         # Ensure the database connection is closed
         if 'cur' in locals():

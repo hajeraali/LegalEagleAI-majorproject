@@ -2,15 +2,15 @@
 /* General Body Styling */
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #e0e0e0;  /* Slightly darker background */
-    color: #333;
+    background: #ffffff;
+    background: linear-gradient(25deg,rgba(230, 176, 90, 0.87) 0%, rgba(252, 236, 204, 1) 30%, rgba(255, 255, 255, 1) 50%, rgba(252, 236, 204, 1) 75%, rgba(230, 176, 90, 0.88) 100%);
+    color: #252525;
 }
 
 /* Container and Header */
 .container {
     max-width: 1200px;
     margin: auto;
-    padding: 20px;
 }
 h1, h2 {
     font-family: 'Montserrat', sans-serif;
@@ -22,38 +22,44 @@ h1, h2 {
 
 /* Form Styling */
 form {
-    background-color: #ffffff71;
-    padding: 20px;
+    background-color: #ffffff;
+    padding: 5%;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .form-group label {
     font-weight: 600;
+    font-size: 20%;
     color: #2d3e50;
 }
 .form-control, .form-control-file, .form-control-range, .form-control select {
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding-bottom: 10%;
 }
 .form-control:focus {
-    border-color: #4273b3;
+    border-color: rgb(0, 25, 66);
     box-shadow: 0 0 4px rgba(66, 115, 179, 0.3);
 }
 
 /* Button Styling */
 button, .btn-primary {
-    background-color: rgb(27, 27, 102);
-    border-color: rgb(27, 27, 102);
+    background-color: #c67a01;
+    border-color: #c67a01;
     color: #fff;
     padding: 10px 20px;
-    font-weight: 600;
+    font-weight:bolder;
+    font-size: large;
     border-radius: 5px;
     transition: all 0.3s ease;
+    display: block;
+    margin: auto;
 }
 button:hover, .btn-primary:hover {
-    background-color: #355a8e;
-    border-color: #355a8e;
+    background-color: #e6ac4e;
+    border-color: #e6ac4e;
+    color: #333;
 }
 
 /* Price Range Display */
@@ -67,13 +73,13 @@ button:hover, .btn-primary:hover {
     border: none;
     border-radius: 10px;
     background-color: #f9f9f9; /* Keep cards lighter for contrast */
-    margin-bottom: 20px;
+    margin-bottom: 35px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-header {
-    background-color: #2d3e50; /* Darker shade for consistency */
+    background-color: rgb(0, 25, 66); /* Darker shade for consistency */
     color: #ffffff;
     font-weight: bold;
     padding: 15px;
@@ -102,6 +108,45 @@ button:hover, .btn-primary:hover {
     color: #2d3e50;
     font-style: italic; /* Italicized reviews */
 }
+
+/* Modal Customization */
+body.modal-open {
+    overflow: hidden;
+}
+.modal {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 1050;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.modal.show {
+    display: flex !important;
+}
+.modal-dialog {
+    margin: 0;
+    max-width: 700px;
+    width: 90%;
+}
+.modal-content {
+    max-height: auto;
+    overflow-y: auto;
+    border-radius: 12px;
+    padding: 0px 20px 0px 20px;
+}
+.close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000;
+}
+
 
 /* Loading Animation */
 .loading {

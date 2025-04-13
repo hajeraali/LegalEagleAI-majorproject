@@ -13,20 +13,9 @@
             padding: 0;
         }
 
-        .container {
-            width: 80%;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
         h1 {
             text-align: center;
-            color: #4273b3;
+            color: #1e1e1e;
             font-size: 2.5rem;
             margin-bottom: 30px;
         }
@@ -36,12 +25,13 @@
             margin-bottom: 8px;
             display: block;
             color: #555;
+            font-size: 120%;
         }
 
         input[type="text"], input[type="number"], input[type="file"], select {
             width: 100%;
             padding: 12px 15px;
-            margin: 8px 0;
+            margin-bottom: 2%;
             border: 2px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
@@ -50,24 +40,8 @@
         }
 
         input[type="text"]:focus, input[type="number"]:focus, select:focus {
-            border-color: #4273b3;
+            border-color: #916622;
             outline: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background-color: #4273b3;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        button:hover {
-            background-color: #365f8f;
         }
 
         .form-row {
@@ -94,10 +68,22 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
 </head>
 <body>
+    <div class="site-navbar mt-4">
+        <div class="row d-flex justify-content-between align-items-center" style="margin-left: 8% ; margin-right: 8%">
+            <div class="col-auto">
+                <h1 class="mb-0">
+                    <a href="{{ url_for('afterlogin') }}" class="h2 mb-0" style="color: black;">
+                        <strong>LegalEagle AI<span style="color: #ce902b;">.</span></strong>
+                    </a>
+                </h1>
+            </div>
+        </div>
+    </div>
     <div class="container mt-5">
-        <h1 class="text-center">Lawyer Recommendation System</h1>
+        <h1 class="text-center" style="font-size:220%; padding-top: 0px">Lawyer Recommendation System</h1>
         <form method="POST" enctype="multipart/form-data">
             <!-- Typed Query -->
             <label for="query">Enter your query:</label>
@@ -114,20 +100,33 @@
             <label for="max_price">Maximum Price:</label>
             <input type="number" id="max_price" name="max_price" step="0.01"><br>
     
-            <!-- Location -->
+            <!-- Location Dropdown -->
             <label for="location">Location:</label>
-            <input type="text" id="location" name="location" placeholder="Enter location"><br>
+            <select id="location" name="location" style="margin-bottom: 2%;">
+                <option value="">-- Select Location --</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Lucknow">Lucknow</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Pune">Pune</option>
+            </select>
+
     
             <!-- Sort Order -->
             <label for="sort_order">Sort by price:</label>
-            <select id="sort_order" name="sort_order">
+            <select id="sort_order" name="sort_order" style="margin-bottom: 2%;">
                 <option value="">-- Select --</option>
                 <option value="low_to_high">Low to High</option>
                 <option value="high_to_low">High to Low</option>
             </select>
     
             <!-- Submit Button --><br>
-            <button type="submit">Find Lawyers</button>
+            <button class="btn btn-primary mt-3" type="submit" style="width: 60%;">Find Lawyers</button>
         </form>
         
         <script>
@@ -159,33 +158,55 @@ document.addEventListener('DOMContentLoaded', () => {
             <h2 class="mt-5">Recommended Lawyers:</h2>
             <div class="row">
                 {% for lawyer in recommended_lawyers %}
-                    <div class="col-md-4"> <!-- Card in a responsive grid -->
-                        <div class="card">
-                            <div class="card-header">
-                                {{ lawyer['Lawyer_name'] }}
-                            </div>
-                            <div class="card-body">
+                <div class="col-md-4">
+                    <!-- Card (Minimal Info) -->
+                    <div class="card" data-bs-toggle="modal" data-bs-target="#lawyerModal{{ loop.index }}">
+                        <div class="card-header">
+                            {{ lawyer['Lawyer_name'] }}
+                        </div>
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
                                 <h5 class="card-title">{{ lawyer['Practice_area'] }}</h5>
-                                <p class="card-text"><strong>Firm Name:</strong> {{ lawyer['Firm_name'] }}</p>
-                                <p class="card-text"><strong>Location:</strong> {{ lawyer['Location'] }}</p>
-                                
-                               
-                                <p class="card-text"><strong>Years of Experience:</strong> {{ lawyer['Years_of_Experience'] }}</p>
-                                <p class="card-text"><strong>Total Cases:</strong> {{ lawyer['Total_cases'] }}</p>
-                                <p class="card-text"><strong>Successful Cases:</strong> {{ lawyer['Successful_cases'] }}</p>
-                                <p class="card-text"><strong>Affiliation:</strong> {{ lawyer['Affiliation'] }}</p>
-                                <p class="card-text"><strong>Client Reviews:</strong></p>
-                                {% for review in lawyer['Client_reviews'].split('|') %}
-                                    <div class="review">{{ review.strip() }}</div>
-                                {% endfor %}
-                                <p class="card-text"><strong>Nominal Fees per Hearing:</strong> {{ lawyer['Nominal_fees_per_hearing'] }}</p>
-                                
-                                 <!-- Book Appointment Button -->
-                                 <button class="btn btn-primary mt-3" data-lawyer-name="{{ lawyer['Lawyer_name'] }}" onclick="bookAppointment(this)">Book Appointment</button>
-
+                                <p class="card-text"><strong>Nominal Fees per Hearing:</strong> ₹{{ lawyer['Nominal_fees_per_hearing'] }}</p>
+                            </div>
+                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Lawyer Avatar"
+                                class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal (Full Info) -->
+                <div class="modal fade" id="lawyerModal{{ loop.index }}" tabindex="-1" aria-labelledby="lawyerModalLabel{{ loop.index }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="lawyerModalLabel{{ loop.index }}">{{ lawyer['Lawyer_name'] }} - {{ lawyer['Practice_area'] }}</h5>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body d-flex justify-content-between">
+                                <div>
+                                    <p><strong>Firm Name:</strong> {{ lawyer['Firm_name'] }}</p>
+                                    <p><strong>Location:</strong> {{ lawyer['Location'] }}</p>
+                                    <p><strong>Years of Experience:</strong> {{ lawyer['Years_of_Experience'] }}</p>
+                                    <p><strong>Total Cases:</strong> {{ lawyer['Total_cases'] }}</p>
+                                    <p><strong>Successful Cases:</strong> {{ lawyer['Successful_cases'] }}</p>
+                                    <p><strong>Affiliation:</strong> {{ lawyer['Affiliation'] }}</p>
+                                    <p><strong>Client Reviews:</strong></p>
+                                    {% for review in lawyer['Client_reviews'].split('|') %}
+                                        <div class="review">{{ review.strip() }}</div>
+                                    {% endfor %}
+                                    <p><strong>Nominal Fees per Hearing:</strong> ₹{{ lawyer['Nominal_fees_per_hearing'] }}</p>
+                                </div>
+                                <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Lawyer Image"
+                                    class="rounded-circle ms-3" style="width: 100px; height: 100px; object-fit: cover;">
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" onclick="bookAppointment(this)" data-lawyer-name="{{ lawyer['Lawyer_name'] }}">Book Appointment</button>
                             </div>
                         </div>
                     </div>
+                </div>                
+                
                 {% endfor %}
             </div>
         {% endif %}
@@ -202,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function showLoadingAnimation() {
             document.querySelector('.loading').style.display = 'block'; // Show loading animation

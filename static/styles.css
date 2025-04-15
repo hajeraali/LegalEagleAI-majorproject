@@ -3,7 +3,7 @@
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background: #ffffff;
-    background: linear-gradient(25deg,rgba(230, 176, 90, 0.87) 0%, rgba(252, 236, 204, 1) 30%, rgba(255, 255, 255, 1) 50%, rgba(252, 236, 204, 1) 75%, rgba(230, 176, 90, 0.88) 100%);
+    background: linear-gradient(205deg,rgba(0, 47, 121, 0.498) 0%, rgba(95, 124, 171, 0.62) 10%, rgba(255, 255, 255, 1) 50%, rgba(252, 236, 204, 0.8) 75%, rgba(230, 176, 90, 0.8) 100%);
     color: #252525;
 }
 
@@ -14,7 +14,7 @@ body {
 }
 h1, h2 {
     font-family: 'Montserrat', sans-serif;
-    color: #2d3e50;
+    color: #041d39;
     text-align: center;
     margin-bottom: 30px;
     font-weight: 700;
@@ -39,7 +39,7 @@ form {
     padding-bottom: 10%;
 }
 .form-control:focus {
-    border-color: rgb(0, 25, 66);
+    border-color: #001942;
     box-shadow: 0 0 4px rgba(66, 115, 179, 0.3);
 }
 

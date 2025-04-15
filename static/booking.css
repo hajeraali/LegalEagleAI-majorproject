@@ -1,48 +1,28 @@
 /* Import a professional font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Lora:wght@400;500;600;700&display=swap');
 
-/* Body Styling - Background Image with Overlay */
 body {
-    font-family: 'Lora', serif;
-    background: url('../static/images/appointment1.jpg') no-repeat center center/cover; /* Use your background image */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-    position: relative;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: url('../static/images/appointment1.jpg') no-repeat center center/cover;
+    color: #252525;
 }
 
-/* Overlay to enhance readability */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Dark overlay */
-    z-index: 0;
-}
-
-/* Glassmorphism Booking Container */
 .booking-container {
-    max-width: 700px;
-    background: rgba(255, 255, 255, 0.15); /* Transparent white */
-    backdrop-filter: blur(12px); /* Glass effect */
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    position: relative;
-    z-index: 1;
+    max-width: 65%;
+    background-color: #ffffff;
+    padding: 4% 5% ;
+    border-radius: 8px;
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Title Styling */
 h2 {
     text-align: center;
-    font-size: 2rem;
-    color: #EEEEEE;
+    font-size: 210%;
+    color: #212121;
     margin-bottom: 1.5rem;
 }
 
@@ -58,7 +38,7 @@ form {
 label {
     flex: 1 1 45%; /* Make labels inline with inputs */
     font-weight: bold;
-    color: #ffffff;
+    color: #303030;
     text-align: left;
     font-size: 1.2rem;
 }
@@ -71,9 +51,9 @@ input[type="time"],
 textarea {
     flex: 1 1 45%; /* Inputs align next to labels */
     padding: 0.5rem;
-    border: 1px solid #ffffff;
+    border: 1px solid #656565;
     border-radius: 4px;
-    font-size: 1.2rem;
+    font-size: 1rem;
     margin-bottom: 1rem;
 }
 
@@ -85,7 +65,8 @@ textarea {
 
 /* Placeholder Text Color */
 input::placeholder, textarea::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(125, 124, 124, 0.7);
+    font-size: medium;
 }
 
 /* Time Slot Selection */
@@ -98,7 +79,7 @@ input::placeholder, textarea::placeholder {
 
 .time-slot {
     padding: 12px 18px;
-    border: 2px solid #EEEEEE;
+    border: 1px solid #4e4e4e;
     border-radius: 8px;
     font-size: 1rem;
     cursor: pointer;
@@ -106,12 +87,12 @@ input::placeholder, textarea::placeholder {
     text-align: center;
     min-width: 110px;
     background: rgba(255, 255, 255, 0.2);
-    color: white;
+    color: rgb(21, 21, 21);
 }
 
 .time-slot:hover,
 .time-slot.selected {
-    background-color: #508C9B;
+    background-color: #c19144;
     color: white;
     font-weight: bold;
 }
@@ -122,21 +103,23 @@ button[type="submit"] {
     display: block; /* Ensures it's treated as a block element */
     margin: 0 auto; /* Centers it horizontally */
     padding: 0.9rem;
-    background: linear-gradient(135deg, #508C9B, #134B70);
-    color: white;
+    background-color: #c67a01;
+    border-color: #c67a01;
+    color: #fff;
     font-size: 1.2rem;
     font-weight: bold;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
-    text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 
 button[type="submit"]:hover {
-    background: linear-gradient(135deg, #134B70, #508C9B);
+    background-color: #e6ac4e;
+    border-color: #e6ac4e;
+    color: #333;
     transform: scale(1.05);
 }
 
@@ -151,7 +134,7 @@ button[type="submit"]:active {
     left: 50%;
     transform: translateX(-50%);
     background: #4CAF50;
-    color: white;
+    color: rgb(27, 27, 27);
     padding: 15px 30px;
     border-radius: 8px;
     font-size: 18px;
@@ -176,7 +159,7 @@ button[type="submit"]:active {
     left: 50%;
     transform: translateX(-50%);
     background: #4CAF50;
-    color: white;
+    color: rgb(36, 36, 36);
     padding: 20px 30px;
     border-radius: 8px;
     font-size: 18px;

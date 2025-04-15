@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/aos.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
   </head>
   <body>
@@ -103,22 +104,75 @@
                 <input type="email" id="lawyerEmail" disabled>
                 <label>Contact No.:</label>
                 <input type="text" id="contact">
-                <label>Address:</label>
-                <input type="text" id="address">
+                <label for="address">Location:</label>
+                    <select id="address">
+                    <option value="">-- Select Location --</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Jaipur">Jaipur</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Lucknow">Lucknow</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Pune">Pune</option>
+                    </select>
     
                 <h3>Information on Firm</h3>
                 <label>Firm Name:</label>
                 <input type="text" id="firmName">
                 <label>Firm Size:</label>
                 <input type="text" id="firmSize">
-                <label>Affiliation:</label>
-                <input type="text" id="affiliation">
+                <label for="affiliation">Affiliation:</label>
+                    <select id="affiliation">
+                    <option value="">-- Select Affiliation --</option>
+                    <option value="District Court">District Court</option>
+                    <option value="Supreme Court of India">Supreme Court of India</option>
+                    <option value="High Court">High Court</option>
+                    <option value="Bar Council of India">Bar Council of India</option>
+                    </select>
     
                 <h3>Professional Information</h3>
-                <label>Practice Area:</label>
-                <input type="text" id="practiceArea">
-                <label>Designation:</label>
-                <input type="text" id="designation">
+                <label for="practiceArea">Practice Area:</label>
+                    <select id="practiceArea">
+                    <option value="">-- Select Practice Area --</option>
+                    <option value="Banking & Finance Law">Banking & Finance Law</option>
+                    <option value="Civil Litigation">Civil Litigation</option>
+                    <option value="Constitutional Law">Constitutional Law</option>
+                    <option value="Corporate Law">Corporate Law</option>
+                    <option value="Criminal Law">Criminal Law</option>
+                    <option value="Cyber Law">Cyber Law</option>
+                    <option value="Employment & Labor Law">Employment & Labor Law</option>
+                    <option value="Environmental Law">Environmental Law</option>
+                    <option value="Family Law">Family Law</option>
+                    <option value="Human Rights Law">Human Rights Law</option>
+                    <option value="Immigration Law">Immigration Law</option>
+                    <option value="Intellectual Property (IP) Law">Intellectual Property (IP) Law</option>
+                    <option value="Personal Injury Law">Personal Injury Law</option>
+                    <option value="Real Estate Law">Real Estate Law</option>
+                    <option value="Tax Law">Tax Law</option>
+                    </select>
+
+                <label for="designation">Designation:</label>
+                    <select id="designation">
+                      <option value="Senior Associate">Senior Associate</option>
+                      <option value="Legal Advisor">Legal Advisor</option>
+                      <option value="Senior Advocate">Senior Advocate</option>
+                      <option value="Independent Legal Consultant">Independent Legal Consultant</option>
+                      <option value="Solicitor">Solicitor</option>
+                      <option value="Advocate">Advocate</option>
+                      <option value="Counsel">Counsel</option>
+                      <option value="Legal Aid Lawyer">Legal Aid Lawyer</option>
+                      <option value="Managing Partner">Managing Partner</option>
+                      <option value="Managing Associate">Managing Associate</option>
+                      <option value="Of Counsel">Of Counsel</option>
+                      <option value="Non-Equity Partner">Non-Equity Partner</option>
+                      <option value="Principal Associate">Principal Associate</option>
+                      <option value="In-House Counsel">In-House Counsel</option>
+                      <option value="Government Counsel">Government Counsel</option>
+                      <option value="Junior Associate / Associate">Junior Associate / Associate</option>
+                    </select>
                 <label>Years of Experience:</label>
                 <input type="number" id="experience">
                 <label>Successful Cases:</label>
@@ -142,7 +196,8 @@
             messagingSenderId: "{{ firebase_messaging_sender_id }}",
             appId: "{{ firebase_app_id }}"
         };
+
     </script>
-    <script type="module" src="{{ url_for('static', filename='js/firebase_Auth.js') }}"></script>    
+    <script type="module" src="{{ url_for('static', filename='js/firebase_Auth.js') }}"></script>   
     </body>
 </html>

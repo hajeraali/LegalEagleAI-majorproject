@@ -1,4 +1,3 @@
-# sync_bookings_to_firebase.py
 import os
 import time
 import psycopg2
@@ -17,22 +16,22 @@ logger = logging.getLogger(__name__)
 
 # Firebase initialization
 def initialize_firebase():
-    cred = credentials.Certificate("config/firebase_admin_config.json")
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': os.getenv('FIREBASE_DB_URL')
-    })
-    logger.info("Firebase initialized successfully")
+    if not firebase_admin._apps:
+        cred = credentials.Certificate("config/firebase_admin_config.json")
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': os.getenv('FIREBASE_DB_URL')
+        })
+        logger.info("Firebase initialized successfully")
 
 # PostgreSQL connection
 def get_postgres_connection():
     try:
-        conn = psycopg2.connect(
+        return psycopg2.connect(
             host="localhost",
             dbname="mydatabase",
             user="postgres",
             password="123"
         )
-        return conn
     except psycopg2.Error as e:
         logger.error(f"PostgreSQL connection error: {e}")
         raise
@@ -53,50 +52,71 @@ def set_last_sync_time(firebase_ref, sync_time):
     except Exception as e:
         logger.error(f"Error setting last sync time: {e}")
 
-# Sync new bookings to Firebase
+# Remove duplicate bookings with same ID
+def remove_redundant_entries():
+    firebase_ref = db.reference('bookings')
+    all_clients = firebase_ref.get() or {}
+
+    for client_email, appointments in all_clients.items():
+        if not isinstance(appointments, dict):
+            logger.warning(f"Skipping corrupted data under {client_email}")
+            continue
+
+        seen_ids = {}
+        for key, appt in appointments.items():
+            if not isinstance(appt, dict):
+                continue
+            appt_id = appt.get('id')
+            if not appt_id:
+                continue
+            if appt_id in seen_ids:
+                logger.info(f"Removing duplicate booking ID {appt_id} under {client_email}")
+                firebase_ref.child(client_email).child(key).delete()
+            else:
+                seen_ids[appt_id] = key
+
+# Sync new PostgreSQL bookings to Firebase
 def sync_bookings():
     initialize_firebase()
     firebase_ref = db.reference('bookings')
-    
+
+    # Optional: Clean duplicates first
+    remove_redundant_entries()
+
     while True:
         try:
             conn = get_postgres_connection()
             cursor = conn.cursor()
-            
-            # Get the last sync time from Firebase
+
             last_sync = get_last_sync_time(firebase_ref)
-            
-            # Query to get new bookings since last sync
+
             if last_sync:
                 query = """
                 SELECT id, appointment_date, client_name, client_email, 
-                       appointment_time, case_details, lawyer_name
+                       appointment_time, case_details, lawyer_name, barcouncil_id
                 FROM clientappointments
                 WHERE (appointment_date || ' ' || appointment_time)::timestamp > %s
                 ORDER BY appointment_date, appointment_time
                 """
                 cursor.execute(query, (last_sync,))
             else:
-                # First time sync - get all bookings
                 query = """
                 SELECT id, appointment_date, client_name, client_email, 
-                       appointment_time, case_details, lawyer_name
+                       appointment_time, case_details, lawyer_name, barcouncil_id
                 FROM clientappointments
                 ORDER BY appointment_date, appointment_time
                 """
                 cursor.execute(query)
-            
+
             new_bookings = cursor.fetchall()
-            
+
             if new_bookings:
                 logger.info(f"Found {len(new_bookings)} new bookings to sync")
-                
-                # Process each new booking
+
                 for booking in new_bookings:
                     booking_id, appointment_date, client_name, client_email, \
-                    appointment_time, case_details, lawyer_name = booking
-                    
-                    # Create booking data structure
+                    appointment_time, case_details, lawyer_name, barcouncil_id = booking
+
                     booking_data = {
                         "id": booking_id,
                         "appointment_date": appointment_date.strftime('%Y-%m-%d'),
@@ -105,37 +125,51 @@ def sync_bookings():
                         "appointment_time": str(appointment_time),
                         "case_details": case_details,
                         "lawyer_name": lawyer_name,
-                        "synced_at": datetime.now().isoformat()
+                        "Bar_Council_ID": barcouncil_id or ""
                     }
-                    
-                    # Push to Firebase under client_email
+
                     try:
-                        # Create a new child under client_email with a unique key
-                        client_ref = firebase_ref.child(client_email.replace('.', ','))  # Replace . with , for Firebase key
-                        new_booking_ref = client_ref.push()
-                        new_booking_ref.set(booking_data)
-                        logger.info(f"Synced booking {booking_id} for client {client_email}")
+                        sanitized_email = client_email.replace('.', ',')
+                        client_ref = firebase_ref.child(sanitized_email)
+                        existing_bookings = client_ref.get() or {}
+                        booking_exists = False
+
+                        for key, existing in existing_bookings.items():
+                            if isinstance(existing, dict) and existing.get('id') == booking_id:
+                                # Always update Bar_Council_ID if missing or outdated
+                                if existing.get("Bar_Council_ID") != (barcouncil_id or ""):
+                                    client_ref.child(key).update({
+                                        "Bar_Council_ID": barcouncil_id or ""
+                                    })
+                                    logger.info(f"Updated Bar_Council_ID for booking {booking_id}")
+                                booking_exists = True
+                                break
+
+                        if not booking_exists:
+                            client_ref.push().set(booking_data)
+                            logger.info(f"Synced new booking {booking_id} for {client_email}")
+
                     except Exception as e:
-                        logger.error(f"Failed to sync booking {booking_id} to Firebase: {e}")
-                
-                # Update last sync time to the latest booking's time
+                        logger.error(f"Failed to sync booking {booking_id}: {e}")
+
+                # Update last sync time
                 latest_booking = new_bookings[-1]
-                latest_timestamp = datetime.combine(latest_booking[1], latest_booking[4])
-                set_last_sync_time(firebase_ref, latest_timestamp)
+                latest_time = datetime.combine(latest_booking[1], latest_booking[4])
+                set_last_sync_time(firebase_ref, latest_time)
+
             else:
-                logger.info("No new bookings found to sync")
-            
+                logger.info("No new bookings to sync")
+
             cursor.close()
             conn.close()
-            
+
         except Exception as e:
             logger.error(f"Error during sync: {e}")
             if 'cursor' in locals():
                 cursor.close()
             if 'conn' in locals():
                 conn.close()
-        
-        # Wait for 60 seconds before checking again
+
         time.sleep(60)
 
 if __name__ == "__main__":

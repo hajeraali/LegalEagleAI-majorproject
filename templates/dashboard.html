@@ -64,12 +64,22 @@
             <p>Bar Council ID: <span id="barCouncilID">Loading...</span></p>
     
             <div class="sidebar-menu">
-                <div class="menu-item" onclick="openEditProfile()"><span>Edit Profile</span><span class="icon">✏️</span></div>
-                <div class="menu-item" id="logout" ><span>Logout</span><span class="icon">ᯓ🏃🏻‍♀️‍➡️</span></div>
+                <div class="menu-item" onclick="openEditProfile()">
+                    <span>Edit Profile</span><span class="icon">✏️</span>
+                </div>
+                <div class="menu-item" id="logout" >
+                    <span>Logout</span><span class="icon">ᯓ🏃🏻‍♀️‍➡️</span>
+                </div>
             </div>
-            <button class="btn btn-primary" style="background-color: rgb(0, 41, 107);;" onclick="location.href='{{ url_for('case_tracking') }}'">
+            <!-- In the sidebar menu -->
+            
+            <!--<div class="menu-item" onclick="location.href='/lawyer'">
+                <span>My Appointments</span><span class="icon">📅</span>
+            </div>-->  
+            
+            <button class="btn btn-primary" style="background-color: rgb(0, 41, 107);" onclick="location.href='{{ url_for('lawyer_appointment_detail') }}'">
                 Case Tracking
-            </button>            
+            </button>           
         </div>
     
         <div class="main-content">
@@ -187,6 +197,11 @@
     
     <script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script>
+        // After fetching or setting the lawyer's name dynamically
+        const lawyerName = document.getElementById("lawyerName").innerText;
+        if (lawyerName && lawyerName !== "Loading...") {
+            localStorage.setItem("lawyerName", lawyerName);
+        }
       const indexUrl = "{{ url_for('index') }}";
         window.firebaseConfig = {
             apiKey: "{{ firebase_api_key }}",

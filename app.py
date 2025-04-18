@@ -53,9 +53,124 @@ def admin_check():
     return jsonify({"logged_in": session.get("admin_logged_in", False)})
 
 # In your main Flask app file (app.py or similar)
-@app.route('/case_tracking')
-def case_tracking():
-    return render_template('case_tracking.html')
+@app.route('/client')
+def client():
+    return render_template('client.html')
+
+@app.route('/client/appointments')
+def client_appointment_detail():
+    return render_template('client_appointment_detail.html', **g.firebase_config)
+
+@app.route('/lawyer/appointments')
+def lawyer_appointment_detail():
+    return render_template('lawyer_appointment_detail.html', **g.firebase_config)
+
+@app.route('/api/get_appointments')
+def get_appointments():
+    user_type = request.args.get('type')  # 'client' or 'lawyer'
+    email = request.args.get('email')     # client email or lawyer email
+
+    if not user_type or not email:
+        return jsonify({'error': 'Missing parameters'}), 400
+
+    try:
+        ref = db.reference('bookings')
+        all_bookings = ref.get() or {}
+
+        if user_type == 'client':
+            sanitized_email = email.replace('.', ',')
+            client_appointments = all_bookings.get(sanitized_email, {})
+            return jsonify({'appointments': list(client_appointments.values())})
+
+        elif user_type == 'lawyer':
+            lawyer_appointments = []
+            for client_email, appointments in all_bookings.items():
+                for appointment_id, appointment in appointments.items():
+                    if appointment.get('lawyer_name') == email:
+                        lawyer_appointments.append(appointment)
+            return jsonify({'appointments': lawyer_appointments})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+def sanitize_email(email):
+    return email.replace('.', ',')
+
+def fetch_firebase_appointments_by_email(email):
+    sanitized_email = sanitize_email(email)
+    ref = db.reference(f'bookings/{sanitized_email}')
+    return ref.get() or {}
+
+def fetch_firebase_appointments_by_lawyer_id(barcouncil_id):
+    root = db.reference('bookings')
+    all_data = root.get()
+    results = []
+    if all_data:
+        for client_email, bookings in all_data.items():
+            for _, appointment in bookings.items():
+                if appointment.get("Bar_Council_ID") == barcouncil_id:
+                    results.append(appointment)
+    return results
+
+@app.route('/api/request_reschedule', methods=['POST'])
+def request_reschedule():
+    data = request.json
+    appointment_id = data.get('id')
+    new_date = data.get('new_date')
+    new_time = data.get('new_time')
+    requester = data.get('requester')
+
+    try:
+        bookings_ref = db.reference('bookings')
+        all_bookings = bookings_ref.get() or {}
+        for email_key, appointments in all_bookings.items():
+            for key, appointment in appointments.items():
+                if appointment.get("id") == appointment_id:
+                    updates = {}
+                    if requester == "client":
+                        updates[f"{email_key}/{key}/reschedule_request"] = {
+                            "new_date": new_date,
+                            "new_time": new_time,
+                            "status": "pending_lawyer_confirmation"
+                        }
+                        updates[f"{email_key}/{key}/status"] = "reschedule_requested"
+                    elif requester == "lawyer":
+                        updates[f"{email_key}/{key}/reschedule_request"] = {
+                            "new_date": new_date,
+                            "new_time": new_time,
+                            "status": "pending_client_confirmation"
+                        }
+                        updates[f"{email_key}/{key}/status"] = "reschedule_requested"
+                    bookings_ref.update(updates)
+                    return jsonify({"message": "Reschedule request submitted."})
+        return jsonify({"error": "Appointment not found."}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+
+@app.route('/api/request_delete', methods=['POST'])
+def request_delete():
+    data = request.json
+    appointment_id = data.get('id')
+    requester = data.get('requester')
+
+    try:
+        bookings_ref = db.reference('bookings')
+        all_bookings = bookings_ref.get() or {}
+        for email_key, appointments in all_bookings.items():
+            for key, appointment in appointments.items():
+                if appointment.get("id") == appointment_id:
+                    updates = {
+                        f"{email_key}/{key}/status": "delete_requested",
+                        f"{email_key}/{key}/delete_by": requester
+                    }
+                    bookings_ref.update(updates)
+                    return jsonify({"message": "Delete request submitted."})
+        return jsonify({"error": "Appointment not found."}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # Download NLTK resources
@@ -79,7 +194,7 @@ classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnl
 
 # Define practice areas
 practice_areas = [
-  "Criminal Law","Civil Litigation","Corporate Law","Family Law",
+  "Criminal Law","Corporate Law","Family Law",
   "Intellectual Property (IP) Law","Real Estate Law","Employment & Labor Law",
   "Banking & Finance Law","Tax Law","Environmental Law","Immigration Law",
   "Cyber Law","Personal Injury Law","Constitutional Law","Human Rights Law"
@@ -118,21 +233,25 @@ def extract_text_from_file(file):
 def recommend_lawyers_route():
     lawyer_recommendations = None
     error_message = None
-    sort_order = None  
+    sort_order = None
+    location = None
+
+    # Fetch unique locations from Firebase
+    lawyers = fetch_lawyer_profiles()
+    unique_locations = sorted(set(
+        lawyer.get("Location") for lawyer in lawyers if lawyer.get("Location")
+    ))
 
     if request.method == 'POST':
-        user_query, min_price, max_price, location = None, None, None, None
-
         try:
             # Handle typed query
+            user_query = ""
             if 'query' in request.form and request.form['query'].strip():
                 user_query = request.form['query'].strip()
             
             # Handle document upload
             if 'upload' in request.files and request.files['upload'].filename:
                 file = request.files['upload']
-                
-                # Ensure file is actually a file and not empty
                 if file and file.filename.endswith(('.pdf', '.docx')):
                     document_text = extract_text_from_file(file)
                     if document_text:
@@ -140,21 +259,23 @@ def recommend_lawyers_route():
                     else:
                         error_message = "Failed to extract text from the uploaded document."
             
-            # Get the price range if provided
+            # Get the form data
             min_price = request.form.get('min_price')
             max_price = request.form.get('max_price')
-
-            # Get sorting order
             sort_order = request.form.get('sort_order')
-
-            # Get location filter
             location = request.form.get('location')
 
-            # Proceed only if user_query is valid
+            # Proceed only if we have a query
             if user_query:
-                lawyer_recommendations = recommend_lawyers(user_query, min_price, max_price, sort_order, location)
-            else:
-                error_message = "No query provided. Please type a query or upload a valid document."
+                lawyer_recommendations = recommend_lawyers(
+                    user_query, 
+                    min_price, 
+                    max_price, 
+                    sort_order, 
+                    location
+                )
+            elif not error_message:
+                error_message = "Please provide a query or upload a document"
 
         except Exception as e:
             error_message = f"An error occurred: {str(e)}"
@@ -164,8 +285,11 @@ def recommend_lawyers_route():
         'recommend_lawyers.html',
         recommended_lawyers=lawyer_recommendations,
         error_message=error_message,
+        unique_locations=unique_locations,
+        selected_location=location,
+        sort_order=sort_order
     )
-    
+        
 # Configure the API key
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 if not GOOGLE_API_KEY:
@@ -273,39 +397,42 @@ def recommend_lawyers(query, min_price=None, max_price=None, sort_order=None, lo
 
     # Fetch all lawyers from Firebase
     ref = db.reference("lawyers_profile/lawyer_profile")
-    all_lawyers = ref.get() or {}  # Handle case where no data exists
-    lawyer_list = list(all_lawyers.values())  # Convert dictionary values to a list
+    all_lawyers = ref.get() or {}
+    lawyer_list = list(all_lawyers.values())
 
     # Filter by practice area
     recommendations = [
-        lawyer for lawyer in lawyer_list if lawyer.get("Practice_area") == recommended_practice_area
+        lawyer for lawyer in lawyer_list 
+        if lawyer.get("Practice_area") == recommended_practice_area
     ]
 
-    # Convert price to float and filter by price range
+    # Filter by price range
     if min_price is not None and max_price is not None:
         try:
-            min_price, max_price = float(min_price), float(max_price)
+            min_price = float(min_price)
+            max_price = float(max_price)
             recommendations = [
                 lawyer for lawyer in recommendations
                 if min_price <= float(lawyer.get("Nominal_fees_per_hearing", 0)) <= max_price
             ]
         except ValueError:
-            pass  # Ignore conversion errors
+            pass  # Ignore invalid price inputs
 
     # Filter by location
     if location:
         recommendations = [
             lawyer for lawyer in recommendations
-            if location.lower() in lawyer.get("Location", "").lower()
+            if location.lower() == lawyer.get("Location", "").lower()
         ]
 
-    # Sort recommendations by price
+    # Sort recommendations
     if sort_order == 'low_to_high':
         recommendations.sort(key=lambda x: float(x.get("Nominal_fees_per_hearing", 0)))
     elif sort_order == 'high_to_low':
         recommendations.sort(key=lambda x: float(x.get("Nominal_fees_per_hearing", 0)), reverse=True)
 
     return recommendations
+
 
 # Database configuration (replace karo with ur actual database credentials)
 DB_HOST = 'localhost'
@@ -323,7 +450,6 @@ def connect_db():
     )
 
 # Function to create the appointments table if it doesn’t exist
-# Function to create the appointments table if it doesn’t exist
 def create_table():
     conn = connect_db()
     cur = conn.cursor()
@@ -335,21 +461,21 @@ def create_table():
         client_email VARCHAR(100) NOT NULL,
         appointment_time TIME NOT NULL,
         case_details TEXT NOT NULL,
-        lawyer_name VARCHAR(100) NOT NULL
+        lawyer_name VARCHAR(100) NOT NULL,
+        barcouncil_id VARCHAR(100) NOT NULL
     );
     """
-
     cur.execute(create_table_query)
     conn.commit()
     cur.close()
     conn.close()
-
 # Call create_table when the app starts
 create_table()
 @app.route('/booking.html')
 def booking():
     lawyer_name = request.args.get('lawyer')  # Get lawyer name from URL parameters
-    return render_template('booking.html', lawyer_name=lawyer_name)
+    barcouncil_id = request.args.get('barcouncil_id', '').replace('/', '_')
+    return render_template('booking.html', lawyer_name=lawyer_name, barcouncil_id=barcouncil_id)
 
 # Route to handle form submissions
 @app.route('/book_appointment', methods=['POST'])
@@ -361,7 +487,9 @@ def book_appointment():
     lawyer_name = data['lawyerName']
     appointment_time = data['appointmentTime']
     case_details = data['caseDetails']
-      # Get the lawyer name from the request
+    barcouncil_id = data.get('barcouncilid', '')
+    
+    print(f"[Server] Received Bar Council ID in request: {barcouncil_id}")
 
     try:
         # Parse the date and time to a datetime object
@@ -382,7 +510,9 @@ def book_appointment():
         );
         """
 
-        cur.execute(check_query, (lawyer_name, appointment_date, appointment_datetime.time(), appointment_datetime.time(), appointment_datetime.time(), appointment_end_time.time()))
+        cur.execute(check_query, (lawyer_name, appointment_date, appointment_datetime.time(), 
+                                appointment_datetime.time(), appointment_datetime.time(), 
+                                appointment_end_time.time()))
         overlapping_appointments = cur.fetchall()
 
         if overlapping_appointments:
@@ -390,24 +520,28 @@ def book_appointment():
             conn.close()
             return jsonify({"message": f"This time slot is already booked for {lawyer_name}. Please choose another time."}), 400
 
-        # Insert the new appointment into the database
+        # Insert the new appointment into PostgreSQL (without barcouncilid)
         insert_query = """
-        INSERT INTO public.clientappointments (appointment_date, client_name, client_email, lawyer_name, appointment_time, case_details)
-        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id;
+        INSERT INTO public.clientappointments (
+            appointment_date, client_name, client_email, 
+            lawyer_name, appointment_time, case_details,barcouncil_id
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;
         """
-        cur.execute(insert_query, (appointment_date, client_name, client_email, lawyer_name, appointment_time, case_details))
+        cur.execute(insert_query, (
+            appointment_date, client_name, client_email, 
+            lawyer_name, appointment_time, case_details, barcouncil_id
+        ))
         
         # Get the newly created appointment ID
         appointment_id = cur.fetchone()[0]
         conn.commit()
 
-    # Send confirmation email
-       # print(f"Loaded email: {app.config.get('MAIL_USERNAME')}")
-       #print(f"Loaded password: {app.config.get('MAIL_PASSWORD')}")
-       # Send confirmation email using the separate email service
-        email_sent = send_email(client_name, client_email, appointment_date, appointment_time, case_details, lawyer_name)
+        # Send confirmation email
+        email_sent = send_email(client_name, client_email, appointment_date, 
+                              appointment_time, case_details, lawyer_name)
         
-        # ===== NEW FIREBASE SYNC CODE =====
+        # Push to Firebase with barcouncilid
         try:
             booking_data = {
                 "id": appointment_id,
@@ -417,7 +551,7 @@ def book_appointment():
                 "appointment_time": appointment_time,
                 "case_details": case_details,
                 "lawyer_name": lawyer_name,
-                "created_at": datetime.now().isoformat()
+                "Bar_Council_ID": barcouncil_id  # Stored only in Firebase
             }
             # Push to Firebase (auto-generates unique key)
             sanitized_email = client_email.replace('.', ',')
@@ -425,7 +559,6 @@ def book_appointment():
             
         except Exception as e:
             print(f"Firebase sync error: {e} (booking still saved to PostgreSQL)")
-        # ===== END SYNC =====
         
         if email_sent:
             return jsonify({"success": True, "message": "Appointment booked successfully, and confirmation email sent!"})
@@ -438,7 +571,5 @@ def book_appointment():
             cur.close()
         if 'conn' in locals():
             conn.close()
-
-
 if __name__ == '__main__':
     app.run(debug=True)

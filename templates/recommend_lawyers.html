@@ -1,233 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lawyer Recommendation System</title>
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f4f7fc;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lawyer Recommendation System</title>
 
-        h1 {
-            text-align: center;
-            color: #1e1e1e;
-            font-size: 2.5rem;
-            margin-bottom: 30px;
-        }
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
-        label {
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: block;
-            color: #555;
-            font-size: 120%;
-        }
-
-        input[type="text"], input[type="number"], input[type="file"], select {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 2%;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
-            border-color: #916622;
-            outline: none;
-        }
-
-        .form-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .form-row input {
-            width: 48%;
-        }
-
-        .form-row select {
-            width: 100%;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                width: 50%;
-                padding: 20px;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
-</head>
-<body>
-    <div class="site-navbar mt-4">
-        <div class="row d-flex justify-content-between align-items-center" style="margin-left: 8% ; margin-right: 8%">
-            <div class="col-auto">
-                <h1 class="mb-0">
-                    <a href="{{ url_for('afterlogin') }}" class="h2 mb-0" style="color: black;">
-                        <strong>LegalEagle AI<span style="color: #ce902b;">.</span></strong>
-                    </a>
-                </h1>
-            </div>
-        </div>
-    </div>
-    <div class="container mt-5">
-        <h1 class="text-center" style="font-size:220%; padding-top: 0px">Lawyer Recommendation System</h1>
-        <form method="POST" enctype="multipart/form-data">
-            <!-- Typed Query -->
-            <label for="query">Enter your query:</label>
-            <input type="text" id="query" name="query" placeholder="Type your query here"><br>
-    
-            <!-- Upload Document -->
-            <label for="upload">Or upload a document:</label>
-            <input type="file" id="upload" name="upload" accept=".pdf,.docx"><br>
-    
-            <!-- Price Range -->
-            <label for="min_price">Minimum Price:</label>
-            <input type="number" id="min_price" name="min_price" step="0.01"> &nbsp; &nbsp; &nbsp;
-    
-            <label for="max_price">Maximum Price:</label>
-            <input type="number" id="max_price" name="max_price" step="0.01"><br>
-    
-            <!-- Location Dropdown -->
-            <label for="location">Location:</label>
-            <select id="location" name="location" style="margin-bottom: 2%;">
-                <option value="">-- Select Location --</option>
-                <option value="Ahmedabad">Ahmedabad</option>
-                <option value="Bangalore">Bangalore</option>
-                <option value="Chennai">Chennai</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Hyderabad">Hyderabad</option>
-                <option value="Jaipur">Jaipur</option>
-                <option value="Kolkata">Kolkata</option>
-                <option value="Lucknow">Lucknow</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Pune">Pune</option>
-            </select>
-
-    
-            <!-- Sort Order -->
-            <label for="sort_order">Sort by price:</label>
-            <select id="sort_order" name="sort_order" style="margin-bottom: 2%;">
-                <option value="">-- Select --</option>
-                <option value="low_to_high">Low to High</option>
-                <option value="high_to_low">High to Low</option>
-            </select>
-    
-            <!-- Submit Button --><br>
-            <button class="btn btn-primary mt-3" type="submit" style="width: 60%;">Find Lawyers</button>
-        </form>
-        
-        <script>
-          function updatePriceRange(value) {
-    let maxValue = Math.min(5000000, value); // Ensure max doesn't exceed ₹50,00,000
-
-    document.getElementById('min_price').value = 10000; // Keep min price fixed at ₹10,000
-    document.getElementById('max_price').value = Math.round(maxValue); // Update max price
-
-    document.getElementById('min_price_label').innerText = "10,000"; // Keep min label fixed
-    document.getElementById('max_price_label').innerText = maxValue.toLocaleString('en-IN'); // Update max label
-}
-
-// Initialize the labels when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    updatePriceRange(1000000); // Initial range for ₹10,00,000
-});
-</script>
-        
-        
-        <div class="loading">
-            <div class="loading-person">
-                <div style="font-size: 50px;">👩🏻‍⚖️</div>
-                <div>Loading...</div>
-            </div>
-        </div>
-
-        {% if recommended_lawyers is not none %}
-            <h2 class="mt-5">Recommended Lawyers:</h2>
-            <div class="row">
-                {% for lawyer in recommended_lawyers %}
-                <div class="col-md-4">
-                    <!-- Card (Minimal Info) -->
-                    <div class="card" data-bs-toggle="modal" data-bs-target="#lawyerModal{{ loop.index }}">
-                        <div class="card-header">
-                            {{ lawyer['Lawyer_name'] }}
-                        </div>
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="card-title">{{ lawyer['Practice_area'] }}</h5>
-                                <p class="card-text"><strong>Nominal Fees per Hearing:</strong> ₹{{ lawyer['Nominal_fees_per_hearing'] }}</p>
-                            </div>
-                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Lawyer Avatar"
-                                class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Modal (Full Info) -->
-                <div class="modal fade" id="lawyerModal{{ loop.index }}" tabindex="-1" aria-labelledby="lawyerModalLabel{{ loop.index }}" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="lawyerModalLabel{{ loop.index }}">{{ lawyer['Lawyer_name'] }} - {{ lawyer['Practice_area'] }}</h5>
-                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body d-flex justify-content-between">
-                                <div>
-                                    <p><strong>Firm Name:</strong> {{ lawyer['Firm_name'] }}</p>
-                                    <p><strong>Location:</strong> {{ lawyer['Location'] }}</p>
-                                    <p><strong>Years of Experience:</strong> {{ lawyer['Years_of_Experience'] }}</p>
-                                    <p><strong>Total Cases:</strong> {{ lawyer['Total_cases'] }}</p>
-                                    <p><strong>Successful Cases:</strong> {{ lawyer['Successful_cases'] }}</p>
-                                    <p><strong>Affiliation:</strong> {{ lawyer['Affiliation'] }}</p>
-                                    <p><strong>Client Reviews:</strong></p>
-                                    {% for review in lawyer['Client_reviews'].split('|') %}
-                                        <div class="review">{{ review.strip() }}</div>
-                                    {% endfor %}
-                                    <p><strong>Nominal Fees per Hearing:</strong> ₹{{ lawyer['Nominal_fees_per_hearing'] }}</p>
-                                </div>
-                                <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Lawyer Image"
-                                    class="rounded-circle ms-3" style="width: 100px; height: 100px; object-fit: cover;">
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" onclick="bookAppointment(this)" data-lawyer-name="{{ lawyer['Lawyer_name'] }}">Book Appointment</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>                
-                
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-    
-    <script>
-        function bookAppointment(button) {
-        const lawyerName = button.getAttribute('data-lawyer-name');
-        window.location.href = "booking.html?lawyer=" + encodeURIComponent(lawyerName);
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f4f7fc;
+      color: #333;
+      margin: 0;
+      padding: 0;
     }
 
+    h1 {
+      text-align: center;
+      color: #1e1e1e;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+    }
+
+    label {
+        margin-top: 8px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        display: block;
+        color: #555;
+        font-size: 120%;
+    }
+
+    input[type="text"], input[type="number"], input[type="file"], select {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 2%;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus, select:focus {
+      border-color: #916622;
+      outline: none;
+    }
+
+    .form-row {
+        gap: 15%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form-row input {
+      width: 48%;
+    }
+
+    .form-row select {
+      width: 100%;
+    }
+
+    .form-row .col {
+        flex: 1;
+      }
+      
+    .form-row .col input {
+        width: 100%;
+        height: 100%;
+        padding: 17px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 50%;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-navbar mt-4">
+    <div class="row d-flex justify-content-between align-items-center" style="margin-left: 8%; margin-right: 8%">
+      <div class="col-auto">
+        <h1 class="mb-0">
+          <a href="{{ url_for('afterlogin') }}" class="h2 mb-0" style="color: black;">
+            <strong>LegalEagle AI<span style="color: #ce902b;">.</span></strong>
+          </a>
+        </h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mt-5">
+    <h1 class="text-center" style="font-size: 220%; padding-top: 0px">Lawyer Recommendation System</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+      <label for="query">Enter your query:</label>
+      <input type="text" id="query" name="query" placeholder="Type your query here"><br>
+
+      <label for="upload">Or upload a document:</label>
+      <input type="file" id="upload" name="upload" accept=".pdf,.docx"><br>
+
+      <!-- Replace the existing price range inputs with this -->
+        <div class="form-row">
+            <div class="col">
+            <label for="min_price">Minimum Price (₹):</label>
+            <input type="number" id="min_price" name="min_price" class="form-control" step="1000" min="0" value="10000">
+        </div>
+        <div class="col">
+            <label for="max_price">Maximum Price (₹):</label>
+            <input type="number" id="max_price" name="max_price" class="form-control" step="1000" min="0" value="1000000">
+            </div>
+        </div>
+
+      <label for="location">Location:</label>
+      <select id="location" name="location" style="margin-bottom: 2%;">
+        <option value="">-- Select Location --</option>
+        <option value="Ahmedabad">Ahmedabad</option>
+        <option value="Bangalore">Bangalore</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Delhi">Delhi</option>
+        <option value="Hyderabad">Hyderabad</option>
+        <option value="Jaipur">Jaipur</option>
+        <option value="Kolkata">Kolkata</option>
+        <option value="Lucknow">Lucknow</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Pune">Pune</option>
+      </select>
+
+      <label for="sort_order">Sort by price:</label>
+      <select id="sort_order" name="sort_order" style="margin-bottom: 2%;">
+        <option value="">-- Select --</option>
+        <option value="low_to_high">Low to High</option>
+        <option value="high_to_low">High to Low</option>
+      </select>
+
+      <br>
+      <button class="btn btn-primary mt-3" type="submit" style="width: 60%;">Find Lawyers</button>
+    </form>
+
+    <div class="loading">
+      <div class="loading-person">
+        <div style="font-size: 50px;">👩🏻‍⚖️</div>
+        <div>Loading...</div>
+      </div>
+    </div>
+
+    {% if recommended_lawyers is not none %}
+    <h2 class="mt-5">Recommended Lawyers:</h2>
+    <div class="row">
+      {% for lawyer in recommended_lawyers %}
+      <div class="col-md-4">
+        <div class="card" data-bs-toggle="modal" data-bs-target="#lawyerModal{{ loop.index }}">
+          <div class="card-header">
+            {{ lawyer['Lawyer_name'] }}
+          </div>
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title">{{ lawyer['Practice_area'] }}</h5>
+              <p class="card-text"><strong>Location:</strong> {{ lawyer['Location'] }}</p>
+              <p class="card-text"><strong>Nominal Fees per Hearing:</strong> ₹{{ lawyer['Nominal_fees_per_hearing'] }}</p>
+            </div>
+            <img src="{{ lawyer['profilePicUrl'] or url_for('static', filename='images/default-avatar.png') }}"
+                 alt="Lawyer Avatar"
+                 class="rounded-circle"
+                 style="width: 60px; height: 60px; object-fit: cover;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="lawyerModal{{ loop.index }}" tabindex="-1" aria-labelledby="lawyerModalLabel{{ loop.index }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="lawyerModalLabel{{ loop.index }}">{{ lawyer['Lawyer_name'] }} - {{ lawyer['Practice_area'] }}</h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex justify-content-between">
+              <div>
+                <p><strong>Firm Name:</strong> {{ lawyer['Firm_name'] }}</p>
+                <p><strong>Location:</strong> {{ lawyer['Location'] }}</p>
+                <p><strong>Years of Experience:</strong> {{ lawyer['Years_of_Experience'] }}</p>
+                <p><strong>Total Cases:</strong> {{ lawyer['Total_cases'] }}</p>
+                <p><strong>Successful Cases:</strong> {{ lawyer['Successful_cases'] }}</p>
+                <p><strong>Affiliation:</strong> {{ lawyer['Affiliation'] }}</p>
+                <p><strong>Client Reviews:</strong></p>
+                {% for review in lawyer['Client_reviews'].split('|') %}
+                <div class="review">{{ review.strip() }}</div>
+                {% endfor %}
+                <p><strong>Nominal Fees per Hearing:</strong> ₹{{ lawyer['Nominal_fees_per_hearing'] }}</p>
+              </div>
+              <img src="{{ lawyer['profilePicUrl'] or url_for('static', filename='images/default-avatar.png') }}"
+                   alt="Lawyer Image"
+                   class="rounded-circle ms-3"
+                   style="width: 100px; height: 100px; object-fit: cover;">
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary"
+                      onclick="bookAppointment(this)"
+                      data-lawyer-name="{{ lawyer['Lawyer_name'] }}"
+                      data-barcouncil-id="{{ lawyer['Bar_Council_ID'] }}">
+                Book Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <script>
+    function bookAppointment(button) {
+      const lawyerName = button.getAttribute('data-lawyer-name');
+      const barcouncilId = button.getAttribute('data-barcouncil-id');
+      const safeBarcouncilId = barcouncilId.replace(/\//g, '_');
+
+      window.selectedLawyerBarCouncilID = safeBarcouncilId;
+
+      window.location.href = `/booking.html?lawyer=${encodeURIComponent(lawyerName)}&barcouncilid=${encodeURIComponent(safeBarcouncilId)}`;
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const minPriceInput = document.getElementById('min_price');
+      const maxPriceInput = document.getElementById('max_price');
+      
+      // Validate when inputs change
+      minPriceInput.addEventListener('change', validatePriceRange);
+      maxPriceInput.addEventListener('change', validatePriceRange);
+      
+      function validatePriceRange() {
+        const min = parseInt(minPriceInput.value);
+        const max = parseInt(maxPriceInput.value);
+        
+        if (min > max) {
+          // If min exceeds max, adjust max to be min + 1000
+          maxPriceInput.value = min + 1000;
+        }
+        
+        // Ensure values are positive
+        if (min < 0) minPriceInput.value = 0;
+        if (max < 0) maxPriceInput.value = 0;
+      }
+    });
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function showLoadingAnimation() {
-            document.querySelector('.loading').style.display = 'block'; // Show loading animation
-        }
-    </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

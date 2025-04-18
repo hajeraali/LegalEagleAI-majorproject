@@ -38,6 +38,8 @@
 
             <label for="lawyerName">Select a Lawyer:</label>
             <input type="text" id="lawyerName" name="lawyerName" value="{{ lawyer_name }}" readonly>
+            <!-- Add this hidden input field in the form -->
+            <input type="hidden" id="barcouncilid" name="barcouncilid" value="{{ barcouncil_id }}">
 
             <label for="appointmentTime">Select a Time:</label>
             <div class="time-slot-container" id="timeSlotContainer"></div>
@@ -58,6 +60,23 @@
         flatpickr("#appointmentDate", {
             minDate: "today",  // Prevents past dates
         });
+
+        // Debug: Log the URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        console.log("URL Parameters:", Object.fromEntries(urlParams.entries()));
+
+        // Get and log the barcouncilid
+        const barcouncilId = urlParams.get('barcouncilid');
+        console.log("Received Bar Council ID from URL:", barcouncilId);
+
+        // Set the hidden field value and verify
+        document.getElementById('barcouncilid').value = barcouncilId;
+        console.log("Set hidden field value to:", document.getElementById('barcouncilid').value);
+
+        const lawyerNameFromInput = document.getElementById('lawyerName').value;
+        if (lawyerNameFromInput) {
+            localStorage.setItem('lawyerName', lawyerNameFromInput);
+        }
 
         const availableTimeSlots = ["09:00 AM", "9:30 AM", "11:00 AM", "2:00 PM", "3:30 PM", "5:00 PM"];
         const timeSlotContainer = document.getElementById("timeSlotContainer");
@@ -126,29 +145,30 @@
         // Handle form submission
         document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
             e.preventDefault(); // Prevent page refresh
-
+        
             const appointmentData = {
                 appointmentDate: document.getElementById('appointmentDate').value,
                 clientName: document.getElementById('clientName').value,
                 clientEmail: document.getElementById('clientEmail').value,
                 lawyerName: document.getElementById('lawyerName').value,
                 appointmentTime: document.getElementById('appointmentTime').value,
-                caseDetails: document.getElementById('caseDetails').value
+                caseDetails: document.getElementById('caseDetails').value,
+                barcouncilid: document.getElementById('barcouncilid').value // Add this line
             };
-
+        
             try {
                 const response = await fetch('/book_appointment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(appointmentData)
                 });
-
+        
                 if (response.ok) {
                     showToast("✅ Appointment booked successfully! Please check your email for confirmation", "success");
                     document.getElementById('appointmentForm').reset();
                     setTimeout(() => {
                         window.location.href = "/afterlogin";
-                    }, 2000); // Adjust delay (2000ms = 3s)
+                    }, 2000);
                 } else {
                     const errorData = await response.json();
                     showToast("❌ Error: " + errorData.message, "error");

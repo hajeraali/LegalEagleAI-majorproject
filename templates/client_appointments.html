@@ -5,64 +5,300 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Appointments</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { padding: 20px; }
-        .info-card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        :root {
+            --primary-brown: #5D4037;
+            --light-brown: #8D6E63;
+            --cream: #FFF8E1;
+            --gold: #FFD700;
+            --dark-gold: #FFC107;
+            --shadow: 0 4px 20px rgba(93, 64, 55, 0.15);
+        }
+        
+        body {
+            background: var(--cream);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--primary-brown);
             padding: 20px;
+        }
+        
+        .container {
+            max-width: 95%;
+            margin-top: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border-bottom: 3px solid var(--gold);
+        }
+        
+        .header h2 {
+            color: var(--primary-brown);
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border-top: 4px solid var(--gold);
+        }
+        
+        .info-card h4 {
+            color: var(--primary-brown);
+            font-weight: 600;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--light-brown);
         }
-        .appointments-table { margin-top: 30px; }
-        .search-bar { margin-bottom: 20px; }
-        .action-buttons {
-            white-space: nowrap;
+        
+        .info-card p {
+            margin-bottom: 10px;
+            color: var(--light-brown);
         }
+        
+        .info-card strong {
+            color: var(--primary-brown);
+            font-weight: 600;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .appointment-card {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--gold);
+        }
+        
+        .appointment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(93, 64, 55, 0.2);
+        }
+        
+        .appointment-card.expired {
+            background-color: #f5f5f5;
+        }
+        
+        .appointment-card.expired::before {
+            content: "EXPIRED";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 3rem;
+            color: rgba(141, 110, 99, 0.1);
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--light-brown);
+        }
+        
+        .card-header strong {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-brown);
+        }
+        
+        .card-body p {
+            margin-bottom: 12px;
+            color: var(--light-brown);
+        }
+        
+        .card-body strong {
+            color: var(--primary-brown);
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-confirmed {
+            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            color: var(--primary-brown);
+        }
+        
+        .status-pending {
+            background: linear-gradient(135deg, #FFC107, #FFA000);
+            color: white;
+        }
+        
+        .status-rescheduled {
+            background: linear-gradient(135deg, #26C6DA, #00ACC1);
+            color: white;
+        }
+        
+        .search-bar {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-bar input {
+            width: 30px;
+            flex-grow: 0.5;
+            border-radius: 8px;
+            border: 1px solid var(--light-brown);
+            padding: 10px 15px;
+        }
+        
+        .search-bar .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 10px 20px;
+        }
+        
         .delete-btn {
-            margin-left: 5px;
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 8px;
+            background: linear-gradient(135deg, #E53935, #C62828);
+            border: none;
+        }
+        
+        .no-appointments {
+            text-align: center;
+            padding: 40px;
+            color: var(--light-brown);
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            grid-column: 1 / -1;
+        }
+        
+        .no-appointments i {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--primary-brown), var(--light-brown));
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 8px;
+        }
+        
+        .btn-secondary:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            border: none;
+            color: var(--primary-brown);
+            font-weight: 600;
+        }
+        
+        .search-bar .dropdown .btn {
+            background: white;
+            border: 1px solid var(--light-brown);
+            color: var(--primary-brown);
+        }
+        
+        .search-bar .dropdown-menu {
+            min-width: 200px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: var(--shadow);
+            border-top: 3px solid var(--gold);
+        }
+        
+        .search-bar .dropdown-item {
+            padding: 8px 16px;
+            color: var(--primary-brown);
+        }
+        
+        .search-bar .dropdown-item:hover {
+            background-color: var(--cream);
+            color: var(--primary-brown);
+        }
+        
+        .card-icon {
+            color: var(--gold);
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Client Appointments</h2>
-        <button class="btn btn-secondary mb-3" onclick="window.history.back()">Back</button>
+        <div class="header">
+            <h2><i class="fas fa-calendar-alt me-2"></i>Client Appointments</h2>
+            <button class="btn btn-secondary" onclick="window.history.back()"><i class="fas fa-arrow-left me-2"></i>Back</button>
+        </div>
         
-        <div class="client-info info-card">
-            <h4>Client Information</h4>
+        <div class="info-card">
+            <h4><i class="fas fa-user-circle me-2"></i>Client Information</h4>
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>Name:</strong> <span id="clientName"></span></p>
-                    <p><strong>Email:</strong> <span id="clientEmail"></span></p>
+                    <p><strong><i class="fas fa-user card-icon"></i>Name:</strong> <span id="clientName"></span></p>
+                    <p><strong><i class="fas fa-envelope card-icon"></i>Email:</strong> <span id="clientEmail"></span></p>
                 </div>
             </div>
         </div>
         
         <div class="appointments-section">
-            <h4>Appointments</h4>
+            <h4><i class="fas fa-calendar-check me-2"></i>Appointments</h4>
             <div class="search-bar">
                 <input type="text" id="appointmentSearch" class="form-control" placeholder="Search appointments...">
-                <button class="btn btn-primary mt-2" onclick="searchAppointments()">Search</button>
+                <button class="btn btn-primary" onclick="searchAppointments()"><i class="fas fa-search me-2"></i>Search</button>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="sortAppointments('dateRecent')"><i class="fas fa-sort-amount-down me-2"></i>Date (Recent First)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sortAppointments('dateOldest')"><i class="fas fa-sort-amount-up me-2"></i>Date (Oldest First)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sortAppointments('nameAsc')"><i class="fas fa-sort-alpha-down me-2"></i>Lawyer Name (A-Z)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sortAppointments('nameDesc')"><i class="fas fa-sort-alpha-up me-2"></i>Lawyer Name (Z-A)</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-striped appointments-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Lawyer Name</th>
-                            <th>Lawyer Email</th>
-                            <th>Contact</th>
-                            <th>Bar Council ID</th>
-                            <th>Practice Area</th>
-                            <th>Time</th>
-                            <th>Case Details</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="appointmentsTable">
-                        <!-- Appointments will be loaded here -->
-                    </tbody>
-                </table>
+            
+            <div class="card-container" id="appointmentsContainer">
+                <!-- Appointments will be loaded here in card format -->
             </div>
         </div>
     </div>
@@ -70,9 +306,9 @@
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirm Deletion</h5>
+            <div class="modal-content" style="border-radius: 12px; border-top: 4px solid var(--gold); box-shadow: 0 10px 30px rgba(93, 64, 55, 0.2);">
+                <div class="modal-header" style="background: var(--cream); border-radius: 12px 12px 0 0; border-bottom: 1px dashed var(--light-brown);">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -80,8 +316,8 @@
                     <p><strong>Case Details:</strong> <span id="modalCaseDetails"></span></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete"><i class="fas fa-trash-alt me-2"></i>Delete</button>
                 </div>
             </div>
         </div>
@@ -98,7 +334,6 @@
             loadClientInfo();
             loadAppointments();
             
-            // Set up delete confirmation
             $('#confirmDelete').click(function() {
                 if (currentAppointmentId) {
                     deleteAppointment(currentAppointmentId);
@@ -117,34 +352,106 @@
             });
         }
         
+        function getDayOfWeek(dateString) {
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const date = new Date(dateString);
+            return days[date.getDay()];
+        }
+        
         function loadAppointments(searchTerm = '') {
             $.get(`/api/client_appointments/${clientEmail}?search=${searchTerm}`, function(data) {
-                let html = '';
-                data.appointments.forEach(appt => {
-                    html += `
-                        <tr id="appt-${appt.id}">
-                            <td>${appt.appointment_date}</td>
-                            <td>${appt.lawyer_name}</td>
-                            <td>${appt.lawyer_email || 'N/A'}</td>
-                            <td>${appt.lawyer_contact || 'N/A'}</td>
-                            <td>${appt.lawyer_barcouncil || 'N/A'}</td>
-                            <td>${appt.lawyer_practice_area || 'N/A'}</td>
-                            <td>${appt.appointment_time}</td>
-                            <td>${appt.case_details}</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-danger btn-sm delete-btn" 
-                                    onclick="showDeleteModal(${appt.id}, '${appt.case_details}')">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    `;
+                const container = $("#appointmentsContainer");
+                container.empty();
+                
+                if (data.appointments.length === 0) {
+                    container.html(`
+                        <div class="no-appointments">
+                            <i class="fas fa-calendar-times"></i>
+                            <h4>No Appointments Found</h4>
+                            <p>There are currently no appointments scheduled</p>
+                        </div>
+                    `);
+                    return;
+                }
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Sort appointments by date (most recent first)
+                data.appointments.sort((a, b) => {
+                    return new Date(b.appointment_date) - new Date(a.appointment_date);
                 });
-                $("#appointmentsTable").html(html);
+                
+                data.appointments.forEach(appt => {
+                    const appointmentDate = new Date(appt.appointment_date);
+                    appointmentDate.setHours(0, 0, 0, 0);
+                    const isExpired = appointmentDate < today;
+                    
+                    // Determine status
+                    const status = appt.status || 'confirmed';
+                    let statusClass = 'status-confirmed';
+                    let statusText = 'Confirmed';
+                    
+                    if (status.toLowerCase() === 'pending') {
+                        statusClass = 'status-pending';
+                        statusText = 'Pending';
+                    } else if (status.toLowerCase() === 'rescheduled') {
+                        statusClass = 'status-rescheduled';
+                        statusText = 'Rescheduled';
+                    }
+                    
+                    const card = $(`
+                        <div class="appointment-card ${isExpired ? 'expired' : ''}">
+                            <div class="card-header">
+                                <strong><i class="fas fa-user-tie card-icon"></i>${appt.lawyer_name}</strong>
+                            </div>
+                            <div class="card-body">
+                                <p><strong><i class="fas fa-id-badge card-icon"></i>Bar Council ID:</strong> ${appt.lawyer_barcouncil || 'N/A'}</p>
+                                <p><strong><i class="fas fa-calendar-day card-icon"></i>Date:</strong> ${appt.appointment_date} (${getDayOfWeek(appt.appointment_date)})</p>
+                                <p><strong><i class="fas fa-clock card-icon"></i>Time:</strong> ${appt.appointment_time}</p>
+                                <p><strong><i class="fas fa-file-alt card-icon"></i>Case Details:</strong> ${appt.case_details}</p>
+                                <span class="${statusClass} status-badge">${statusText}</span>
+                                <button class="btn btn-danger btn-sm delete-btn" 
+                                    onclick="showDeleteModal(${appt.id}, '${appt.case_details.replace(/'/g, "\\'")}')">
+                                    <i class="fas fa-trash-alt me-2"></i>Delete Appointment
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    
+                    container.append(card);
+                });
             }).fail(function(error) {
                 console.error("Error loading appointments:", error);
                 alert("Failed to load appointments");
             });
+        }
+        
+        function sortAppointments(sortType) {
+            const container = $("#appointmentsContainer");
+            const cards = container.find(".appointment-card").get();
+            
+            cards.sort((a, b) => {
+                const aDate = new Date($(a).find("p:contains('Date:')").text().split('(')[0].trim());
+                const bDate = new Date($(b).find("p:contains('Date:')").text().split('(')[0].trim());
+                const aName = $(a).find(".card-header strong").text().toLowerCase();
+                const bName = $(b).find(".card-header strong").text().toLowerCase();
+                
+                switch(sortType) {
+                    case 'dateRecent':
+                        return bDate - aDate;
+                    case 'dateOldest':
+                        return aDate - bDate;
+                    case 'nameAsc':
+                        return aName.localeCompare(bName);
+                    case 'nameDesc':
+                        return bName.localeCompare(aName);
+                    default:
+                        return 0;
+                }
+            });
+            
+            container.empty().append(cards);
         }
         
         function showDeleteModal(appointmentId, caseDetails) {
@@ -158,10 +465,13 @@
                 url: '/api/delete_appointment',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ appointment_id: appointmentId }),
+                data: JSON.stringify({
+                    appointment_id: appointmentId,
+                    client_email: clientEmail
+                }),
                 success: function(response) {
                     deleteModal.hide();
-                    $(`#appt-${appointmentId}`).remove();
+                    loadAppointments();
                     alert('Appointment deleted successfully');
                 },
                 error: function(xhr) {

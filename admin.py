@@ -282,52 +282,37 @@ def get_lawyer_profile(lawyer_id):
 def get_lawyer_appointments(lawyer_id):
     if not session.get("admin_logged_in"):
         return jsonify({"error": "Unauthorized"}), 403
-    
+
     try:
         lawyer_ref = db.reference(f'lawyers/{lawyer_id}')
         lawyer_data = lawyer_ref.get()
         if not lawyer_data:
             return jsonify({"error": "Lawyer not found"}), 404
-        
+
         lawyer_name = lawyer_data.get('name')
         if not lawyer_name:
             return jsonify({"error": "Lawyer name not found"}), 404
-        
-        search_term = request.args.get('search', '')
-        search_pattern = f"%{search_term}%"
-        
-        with get_db_cursor() as cur:
-            query = """
-                SELECT 
-                    id, appointment_date, client_name, client_email,
-                    appointment_time, case_details, lawyer_name
-                FROM clientappointments 
-                WHERE lawyer_name = %s
-                AND (client_name ILIKE %s OR client_email ILIKE %s OR case_details ILIKE %s)
-                ORDER BY appointment_date DESC, appointment_time DESC
-            """
-            cur.execute(query, (lawyer_name, search_pattern, search_pattern, search_pattern))
-            
-            appointments = []
-            for row in cur.fetchall():
-                appointments.append({
-                    "id": row[0],
-                    "appointment_date": row[1].strftime('%Y-%m-%d'),
-                    "client_name": row[2],
-                    "client_email": row[3],
-                    "appointment_time": str(row[4]),
-                    "case_details": row[5],
-                    "lawyer_name": row[6]
-                })
-            
+
+        bookings_ref = db.reference('bookings')
+        all_bookings = bookings_ref.get() or {}
+
+        appointments = []
+        for client_email, appt_group in all_bookings.items():
+            for appt_id, appt in appt_group.items():
+                if appt.get("lawyer_name") == lawyer_name:
+                    appointments.append({
+                        "id": appt.get('id'),
+                        "appointment_date": appt.get('appointment_date'),
+                        "appointment_time": appt.get('appointment_time'),
+                        "case_details": appt.get('case_details'),
+                        "client_name": appt.get('client_name'),
+                        "client_email": appt.get('client_email'),
+                        "lawyer_name": appt.get('lawyer_name')
+                    })
+
         return jsonify({"appointments": appointments})
-        
-    except psycopg2.Error as e:
-        logger.error(f"Database error: {str(e)}")
-        return jsonify({"error": "Database operation failed"}), 500
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        return jsonify({"error": "An unexpected error occurred"}), 500
+        return jsonify({"error": str(e)}), 500
 
 @admin_bp.route('/api/client_info/<client_email>')
 def get_client_info(client_email):
@@ -356,50 +341,32 @@ def get_client_info(client_email):
 def get_client_appointments(client_email):
     if not session.get("admin_logged_in"):
         return jsonify({"error": "Unauthorized"}), 403
-    
+
     try:
-        search_term = request.args.get('search', '')
-        search_pattern = f"%{search_term}%"
-        
-        with get_db_cursor() as cur:
-            query = """
-                SELECT 
-                    id, appointment_date, client_name, client_email,
-                    appointment_time, case_details, lawyer_name
-                FROM clientappointments 
-                WHERE client_email = %s
-                AND (client_name ILIKE %s OR case_details ILIKE %s OR lawyer_name ILIKE %s)
-                ORDER BY appointment_date DESC, appointment_time DESC
-            """
-            cur.execute(query, (client_email, search_pattern, search_pattern, search_pattern))
-            
-            appointments = []
-            for row in cur.fetchall():
-                lawyer_name = row[6]
-                lawyer_details = get_lawyer_details_by_name(lawyer_name)
-                
-                appointments.append({
-                    "id": row[0],
-                    "appointment_date": row[1].strftime('%Y-%m-%d'),
-                    "client_name": row[2],
-                    "client_email": row[3],
-                    "appointment_time": str(row[4]),
-                    "case_details": row[5],
-                    "lawyer_name": lawyer_name,
-                    "lawyer_email": lawyer_details.get('email', 'N/A'),
-                    "lawyer_contact": lawyer_details.get('contact', 'N/A'),
-                    "lawyer_barcouncil": lawyer_details.get('barCouncilID', 'N/A'),
-                    "lawyer_practice_area": lawyer_details.get('Practice_area', 'N/A')
-                })
-            
+        sanitized_email = client_email.replace('.', ',')
+        appointments_ref = db.reference(f'bookings/{sanitized_email}')
+        appointments_data = appointments_ref.get() or {}
+
+        appointments = []
+        for key, appt in appointments_data.items():
+            lawyer_details = get_lawyer_details_by_name(appt.get('lawyer_name', ''))
+            appointments.append({
+                "id": appt.get('id'),
+                "appointment_date": appt.get('appointment_date'),
+                "appointment_time": appt.get('appointment_time'),
+                "case_details": appt.get('case_details'),
+                "client_name": appt.get('client_name'),
+                "client_email": appt.get('client_email'),
+                "lawyer_name": appt.get('lawyer_name'),
+                "lawyer_email": lawyer_details.get('email', 'N/A'),
+                "lawyer_contact": lawyer_details.get('contact', 'N/A'),
+                "lawyer_barcouncil": lawyer_details.get('barCouncilID', 'N/A'),
+                "lawyer_practice_area": lawyer_details.get('Practice_area', 'N/A')
+            })
+
         return jsonify({"appointments": appointments})
-        
-    except psycopg2.Error as e:
-        logger.error(f"Database error: {str(e)}")
-        return jsonify({"error": "Database operation failed"}), 500
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        return jsonify({"error": "An unexpected error occurred"}), 500
+        return jsonify({"error": str(e)}), 500
 
 def get_lawyer_details_by_name(lawyer_name):
     """Helper function to get lawyer details from Firebase by name"""
@@ -428,55 +395,33 @@ def delete_appointment():
 
     data = request.json
     appointment_id = data.get("appointment_id")
+    client_email = data.get("client_email")
 
-    if not appointment_id:
-        return jsonify({"error": "Appointment ID is required"}), 400
-
-    try:
-        with get_db_cursor() as cur:
-            # First check if appointment exists
-            cur.execute("SELECT id FROM clientappointments WHERE id = %s", (appointment_id,))
-            if not cur.fetchone():
-                return jsonify({"error": "Appointment not found"}), 404
-
-            # Delete the appointment
-            cur.execute("DELETE FROM clientappointments WHERE id = %s", (appointment_id,))
-            
-        return jsonify({"message": "Appointment deleted successfully"})
-        
-    except psycopg2.Error as e:
-        logger.error(f"Database error deleting appointment: {str(e)}")
-        return jsonify({"error": "Database operation failed"}), 500
-    except Exception as e:
-        logger.error(f"Unexpected error deleting appointment: {str(e)}")
-        return jsonify({"error": "An unexpected error occurred"}), 500
-
-@admin_bp.route('/api/delete_lawyer_appointment', methods=['POST'])  # Changed endpoint name
-def delete_lawyer_appointment():  # Changed function name
-    if not session.get("admin_logged_in"):
-        return jsonify({"error": "Unauthorized"}), 403
-
-    data = request.json
-    appointment_id = data.get("appointment_id")
-
-    if not appointment_id:
-        return jsonify({"error": "Appointment ID is required"}), 400
+    if not appointment_id or not client_email:
+        return jsonify({"error": "Appointment ID and client email are required"}), 400
 
     try:
-        with get_db_cursor() as cur:
-            # First check if appointment exists
-            cur.execute("SELECT id FROM clientappointments WHERE id = %s", (appointment_id,))
-            if not cur.fetchone():
-                return jsonify({"error": "Appointment not found"}), 404
+        # Delete from Firebase
+        sanitized_email = client_email.replace('.', ',')
+        ref = db.reference(f'bookings/{sanitized_email}')
+        appointments = ref.get() or {}
 
-            # Delete the appointment
+        deleted_from_firebase = False
+        for key, appt in appointments.items():
+            if str(appt.get("id")) == str(appointment_id):
+                ref.child(key).delete()
+                deleted_from_firebase = True
+                break
+
+        if not deleted_from_firebase:
+            return jsonify({"error": "Appointment not found in Firebase"}), 404
+
+        # Delete from PostgreSQL
+        with get_db_cursor() as cur:
             cur.execute("DELETE FROM clientappointments WHERE id = %s", (appointment_id,))
-            
-        return jsonify({"message": "Appointment deleted successfully"})
-        
-    except psycopg2.Error as e:
-        logger.error(f"Database error deleting appointment: {str(e)}")
-        return jsonify({"error": "Database operation failed"}), 500
+
+        return jsonify({"message": "Appointment deleted from both Firebase and PostgreSQL"})
+
     except Exception as e:
-        logger.error(f"Unexpected error deleting appointment: {str(e)}")
-        return jsonify({"error": "An unexpected error occurred"}), 500
+        return jsonify({"error": str(e)}), 500
+

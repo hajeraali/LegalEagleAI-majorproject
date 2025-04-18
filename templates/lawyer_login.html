@@ -47,17 +47,6 @@
                   <input type="submit" id="login" value="LOGIN">
                </div>
             </form>
-            <div class="login">
-               Or login with
-            </div>
-            <div class="links">
-               <div class="facebook">
-                  <i class="fab fa-facebook-f"><span>Facebook</span></i>
-               </div>
-               <div class="instagram">
-                  <i class="fab fa-google"><span>Google</span></i>
-               </div>
-            </div>
             <div class="signup">
                Don't have account?
                <a href="{{ url_for('lawyer_signup') }}">Signup Now</a>
@@ -89,6 +78,8 @@
              messagingSenderId: "{{ firebase_messaging_sender_id }}",
              appId: "{{ firebase_app_id }}"
          };
+
+
      
       </script>
       <script type="module" src="{{ url_for('static', filename='js/lawyer_firebase_auth.js') }}" ></script>

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Appointments</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary-brown: #5D4037;
+      --light-brown: #8D6E63;
+      --cream: #FFF8E1;
+      --gold: #FFD700;
+      --dark-gold: #FFC107;
+      --shadow: 0 4px 20px rgba(93, 64, 55, 0.15);
+    }
+    
+    body { 
+      font-family: 'Segoe UI', sans-serif; 
+      padding: 20px;
+      min-height: 100vh;
+      background: var(--cream);
+      color: var(--primary-brown);
+    }
+    
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--gold);
+    }
+    
+    .header h1 {
+      margin: 0;
+      color: var(--primary-brown);
+      font-weight: 700;
+    }
+
+    .page-title {
+      margin: 0;
+      color: var(--primary-brown);
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-brown), var(--light-brown));
+      border: none;
+      font-weight: 500;
+    }
+
+    .back-btn {
+      position: absolute;
+      left: 20px;
+      background: linear-gradient(135deg, var(--primary-brown), var(--light-brown));
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(93, 64, 55, 0.2);
+      color: white;
+    }
+
+    .card-container { 
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px; 
+    }
+    
+    .appointment-card {
+      position: relative; 
+      background: white; 
+      border-radius: 12px; 
+      padding: 20px; 
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease; 
+      text-align: center;
+      border-top: 4px solid var(--gold);
+    }
+    
+    .appointment-card:hover { 
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(93, 64, 55, 0.2);
+    }
+    
+    .appointment-card.expired { 
+      background-color: #f5f5f5 !important; 
+    }
+    
+    .appointment-card.expired::before {
+      content: "EXPIRED"; 
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 3rem; 
+      color: rgba(100, 100, 100, 0.15); 
+      font-weight: 900; 
+      pointer-events: none; 
+      z-index: 1;
+    }
+    
+    .lawyer-pic { 
+      width: 80px; 
+      height: 80px; 
+      object-fit: cover; 
+      border-radius: 50%; 
+      margin-bottom: 10px; 
+      border: 3px solid var(--gold);
+    }
+    
+    .modal-lg { 
+      max-width: 900px; 
+    }
+
+    .modal-content {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(93, 64, 55, 0.2);
+      border-top: 4px solid var(--gold);
+    }
+
+    .modal-header {
+      border-bottom: 1px dashed var(--light-brown);
+      background: var(--cream);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .modal-title {
+      color: var(--primary-brown);
+      font-weight: 600;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+      border: none;
+      color: var(--primary-brown);
+      font-weight: 500;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #E53935, #C62828);
+      border: none;
+      font-weight: 500;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .badge-success {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: white;
+    }
+    
+    .badge-secondary {
+      background: linear-gradient(135deg, #9E9E9E, #616161);
+      color: white;
+    }
+    
+    .badge-danger {
+      background: linear-gradient(135deg, #E53935, #C62828);
+      color: white;
+    }
+    
+    .badge-warning {
+      background: linear-gradient(135deg, #FF9800, #F57C00);
+      color: white;
+    }
+    .dropdown{
+      margin-bottom: 20px;
+      flex-direction: row-reverse;
+      display: flex;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1 class="page-title">My Appointments</h1>
+    <a class="btn btn-primary" href="{{ url_for('afterlogin') }}">Back to Dashboard</a>
+  </div>
+  <div class="dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+      Sort By
+    </button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="#" onclick="setSortOption('az')">A → Z</a></li>
+      <li><a class="dropdown-item" href="#" onclick="setSortOption('za')">Z → A</a></li>
+      <li><a class="dropdown-item" href="#" onclick="setSortOption('newest')">Newest First</a></li>
+      <li><a class="dropdown-item" href="#" onclick="setSortOption('oldest')">Oldest First</a></li>
+    </ul>
+  </div>    
+
+  <div class="card-container" id="appointments-container">
+    <div class="text-muted text-center">Loading appointments...</div>
+  </div>
+
+  <!-- Lawyer Details Modal -->
+  <div class="modal fade" id="lawyerDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Appointment Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="lawyer-profile-content" class="row"></div>
+        </div>
+        <div class="modal-footer" id="modalFooterButtons">
+          <button id="rescheduleBtn" class="btn btn-warning"><i class="bi bi-clock-history"></i> Reschedule</button>
+          <button id="deleteBtn" class="btn btn-danger"><i class="bi bi-x-circle"></i> Delete</button>
+        </div>        
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "{{ firebase_api_key }}",
+      authDomain: "{{ firebase_auth_domain }}",
+      projectId: "{{ firebase_project_id }}",
+      storageBucket: "{{ firebase_storage_bucket }}",
+      messagingSenderId: "{{ firebase_messaging_sender_id }}",
+      appId: "{{ firebase_app_id }}",
+      databaseURL: "https://legaleagle-auth-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let currentAppointment = null;
+    
+    let currentSort = "newest"; // default sort
+    function setSortOption(option) {
+      currentSort = option;
+      auth.currentUser && loadAppointments(auth.currentUser.email);
+    }
+    
+    // Approved time slots
+    const availableTimeSlots = ["09:00 AM", "09:30 AM", "11:00 AM", "02:00 PM", "03:30 PM", "05:00 PM"];
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) loadAppointments(user.email);
+      else window.location.href = "{{ url_for('client_login') }}";
+    });
+
+    async function getLawyerData(barCouncilId) {
+      try {
+        if (!barCouncilId) return {};
+        const safeId = barCouncilId.toString().replace(/\//g, '_');
+        const path = `lawyers_profile/lawyer_profile/${safeId}`;
+        const snapshot = await get(child(ref(db), path));
+        return snapshot.exists() ? snapshot.val() : {};
+      } catch (error) {
+        console.error("Error fetching lawyer data:", error);
+        return {};
+      }
+    }
+
+    async function loadAppointments(clientEmail) {
+      const container = document.getElementById('appointments-container');
+      try {
+        const res = await fetch(`/api/get_appointments?type=client&email=${encodeURIComponent(clientEmail)}`);
+        const data = await res.json();
+        container.innerHTML = "";
+
+        if (!data.appointments?.length) {
+          container.innerHTML = `<div class="text-center py-5 text-muted"><p>No appointments found.</p><a href="{{ url_for('recommend_lawyers_route') }}" class="btn btn-primary">Book an Appointment</a></div>`;
+          return;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        data.appointments.sort((a, b) => {
+          if (currentSort === "az") {
+            return (a.lawyer_name || '').localeCompare(b.lawyer_name || '');
+          } else if (currentSort === "za") {
+            return (b.lawyer_name || '').localeCompare(a.lawyer_name || '');
+          } else if (currentSort === "newest") {
+            return new Date(b.appointment_date) - new Date(a.appointment_date);
+          } else if (currentSort === "oldest") {
+            return new Date(a.appointment_date) - new Date(b.appointment_date);
+          }
+          return 0;
+        });
+        
+
+        for (let appt of data.appointments) {
+          const apptDate = new Date(appt.appointment_date);
+          apptDate.setHours(0, 0, 0, 0);
+          const isExpired = apptDate < today;
+          const day = new Date(appt.appointment_date).toLocaleDateString('en-US', { weekday: 'long' });
+          const statusBadge = getStatusBadge(appt.status);
+          const rescheduleBadge = appt.reschedule_request 
+            ? `<span class="badge bg-warning ms-1">Reschedule Requested</span>` 
+            : '';
+
+
+          const lawyerData = await getLawyerData(appt.Bar_Council_ID);
+          const lawyerName = lawyerData?.Lawyer_name || appt.lawyer_name || 'Unknown Lawyer';
+          const barId = lawyerData?.Bar_Council_ID || appt.Bar_Council_ID || 'N/A';
+
+          const card = document.createElement("div");
+          card.className = `appointment-card ${isExpired ? 'expired' : ''}`;
+          card.innerHTML = `
+            <img src="${lawyerData?.profilePicUrl || 'https://via.placeholder.com/80'}" class="lawyer-pic" />
+            <h5>${lawyerName}</h5>
+            <p class="text-muted">${barId}</p>
+            <p><strong>Date:</strong> ${appt.appointment_date} (${day})</p>
+            <p><strong>Time:</strong> ${appt.appointment_time}</p>
+            <p><strong>Status:</strong> ${statusBadge} ${rescheduleBadge}</p>
+          `;
+          card.onclick = () => openModal(appt, lawyerData, isExpired);
+          container.appendChild(card);
+        }
+      } catch (e) {
+        console.error(e);
+        container.innerHTML = `<div class="alert alert-danger">Error loading appointments.</div>`;
+      }
+    }
+
+    function getStatusBadge(status) {
+      const map = {
+        confirmed: 'success',
+        pending: 'secondary',
+        delete_requested: 'danger',
+        reschedule_requested: 'warning'
+      };
+      return `<span class="badge bg-${map[status?.toLowerCase()] || 'secondary'}">${status || 'Pending'}</span>`;
+    }
+
+    function openModal(appointment, lawyer, expired) {
+      currentAppointment = appointment;
+      const lawyerName = lawyer?.Lawyer_name || appointment.lawyer_name || 'Unknown Lawyer';
+      const barId = lawyer?.Bar_Council_ID || appointment.Bar_Council_ID || 'N/A';
+      const reschedule = appointment.reschedule_request;
+    
+      const profile = document.getElementById('lawyer-profile-content');
+      profile.innerHTML = `
+        <div class="col-md-4 text-center">
+          <img src="${lawyer?.profilePicUrl || 'https://via.placeholder.com/120'}" class="img-thumbnail mb-3" width="120" height="120"/>
+          <h5>${lawyerName}</h5>
+          <p class="text-muted">${barId}</p>
+        </div>
+        <div class="col-md-8">
+          <p><strong>Practice Area:</strong> ${lawyer?.Practice_area || 'N/A'}</p>
+          <p><strong>Firm:</strong> ${lawyer?.Firm_name || 'N/A'} (${lawyer?.Firm_size || ''})</p>
+          <p><strong>Designation:</strong> ${lawyer?.Designation || 'N/A'}</p>
+          <p><strong>Experience:</strong> ${lawyer?.Years_of_Experience || 0} years</p>
+          <p><strong>Cases:</strong> ${lawyer?.Total_cases || 0} (Success: ${lawyer?.Successful_cases || 0})</p>
+          <p><strong>Fees:</strong> ₹${lawyer?.Nominal_fees_per_hearing || 'N/A'}</p>
+          <p><strong>Location:</strong> ${lawyer?.Location || 'N/A'}</p>
+          <p><strong>Contact:</strong> ${lawyer?.contact || 'N/A'}</p>
+          <p><strong>Case Details:</strong> ${appointment.case_details}</p>
+          ${reschedule ? `
+            <hr>
+            <p class="text-warning"><strong>Reschedule Requested:</strong></p>
+            <p><strong>Proposed Date:</strong> ${reschedule.new_date}</p>
+            <p><strong>Proposed Time:</strong> ${reschedule.new_time}</p>
+            <p><strong>Status:</strong> ${reschedule.status}</p>
+          ` : ''}
+        </div>
+      `;
+    
+      document.getElementById("rescheduleBtn").disabled = expired;
+      document.getElementById("deleteBtn").disabled = expired;
+      
+      // Add reschedule response buttons if applicable
+      const footer = document.getElementById("modalFooterButtons");
+      footer.innerHTML = `
+        <button id="rescheduleBtn" class="btn btn-warning" ${expired ? "disabled" : ""}>
+          <i class="bi bi-clock-history"></i> Reschedule
+        </button>
+        <button id="deleteBtn" class="btn btn-danger" ${expired ? "disabled" : ""}>
+          <i class="bi bi-x-circle"></i> Delete
+        </button>
+        ${appointment.reschedule_request ? `
+          <button id="approveReschedule" class="btn btn-success">
+            <i class="bi bi-check-circle"></i> Approve Reschedule
+          </button>
+          <button id="declineReschedule" class="btn btn-secondary">
+            <i class="bi bi-x-circle-fill"></i> Decline
+          </button>
+        ` : ''}
+      `;
+      
+      // Re-bind click events
+      document.getElementById("rescheduleBtn").onclick = async () => {
+        const rescheduleModal = `
+          <div class="modal fade" id="rescheduleTimeModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Reschedule Appointment</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="rescheduleDate" class="form-label">New Date</label>
+                    <input type="date" class="form-control" id="rescheduleDate" value="${currentAppointment.appointment_date}">
+                  </div>
+                  <div class="mb-3">
+                    <label for="rescheduleTime" class="form-label">New Time</label>
+                    <select class="form-select" id="rescheduleTime">
+                      ${availableTimeSlots.map(slot => 
+                        `<option value="${slot}" ${slot === currentAppointment.appointment_time ? 'selected' : ''}>${slot}</option>`
+                      ).join('')}
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-warning" id="confirmReschedule">Reschedule</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      
+        document.body.insertAdjacentHTML('beforeend', rescheduleModal);
+        const modal = new bootstrap.Modal(document.getElementById('rescheduleTimeModal'));
+        modal.show();
+      
+        document.getElementById('confirmReschedule').onclick = async () => {
+          const newDate = document.getElementById('rescheduleDate').value;
+          const newTime = document.getElementById('rescheduleTime').value;
+      
+          if (!newDate || !newTime) {
+            alert('Please select both date and time');
+            return;
+          }
+      
+          await fetch('/api/request_reschedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: currentAppointment.id,
+              new_date: newDate,
+              new_time: newTime,
+              requester: "client"
+            })
+          });
+      
+          alert("Reschedule request sent.");
+          modal.hide();
+          setTimeout(() => {
+            document.getElementById('rescheduleTimeModal').remove();
+          }, 500);
+          location.reload();
+        };
+      
+        document.getElementById('rescheduleTimeModal').addEventListener('hidden.bs.modal', () => {
+          document.getElementById('rescheduleTimeModal').remove();
+        });
+      };
+      
+      document.getElementById("deleteBtn").onclick = async () => {
+        if (!confirm("Are you sure you want to request deletion?")) return;
+      
+        await fetch('/api/request_delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: currentAppointment.id,
+            requester: "client"
+          })
+        });
+        location.reload();
+      };
+      
+      if (appointment.reschedule_request) {
+        document.getElementById("approveReschedule").onclick = async () => {
+          await fetch('/api/confirm_reschedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: currentAppointment.id,
+              new_date: appointment.reschedule_request.new_date,
+              new_time: appointment.reschedule_request.new_time,
+              approve: true
+            })
+          });
+          alert("Reschedule approved.");
+          location.reload();
+        };
+      
+        document.getElementById("declineReschedule").onclick = async () => {
+          await fetch('/api/confirm_reschedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: currentAppointment.id,
+              approve: false
+            })
+          });
+          alert("Reschedule declined.");
+          location.reload();
+        };
+      }
+      
+    
+      new bootstrap.Modal(document.getElementById('lawyerDetailsModal')).show();
+    }
+    
+
+    document.getElementById("rescheduleBtn").onclick = async () => {
+      // Create reschedule modal with time slot dropdown
+      const rescheduleModal = `
+        <div class="modal fade" id="rescheduleTimeModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Reschedule Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="rescheduleDate" class="form-label">New Date</label>
+                  <input type="date" class="form-control" id="rescheduleDate" value="${currentAppointment.appointment_date}">
+                </div>
+                <div class="mb-3">
+                  <label for="rescheduleTime" class="form-label">New Time</label>
+                  <select class="form-select" id="rescheduleTime">
+                    ${availableTimeSlots.map(slot => 
+                      `<option value="${slot}" ${slot === currentAppointment.appointment_time ? 'selected' : ''}>${slot}</option>`
+                    ).join('')}
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="confirmReschedule">Reschedule</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add modal to DOM
+      document.body.insertAdjacentHTML('beforeend', rescheduleModal);
+      const modal = new bootstrap.Modal(document.getElementById('rescheduleTimeModal'));
+      modal.show();
+      
+      // Handle confirm button click
+      document.getElementById('confirmReschedule').onclick = async () => {
+        const newDate = document.getElementById('rescheduleDate').value;
+        const newTime = document.getElementById('rescheduleTime').value;
+        
+        if (!newDate) {
+          alert('Please select a date');
+          return;
+        }
+        
+        if (!confirm(`Reschedule to ${newDate} at ${newTime}?`)) return;
+
+        await fetch('/api/request_reschedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: currentAppointment.id,
+            new_date: newDate,
+            new_time: newTime,
+            requester: "client"
+          })
+        });
+        
+        modal.hide();
+        setTimeout(() => {
+          document.getElementById('rescheduleTimeModal').remove();
+        }, 500);
+        location.reload();
+      };
+      
+      // Clean up modal when closed
+      document.getElementById('rescheduleTimeModal').addEventListener('hidden.bs.modal', () => {
+        document.getElementById('rescheduleTimeModal').remove();
+      });
+    };
+
+    document.getElementById("deleteBtn").onclick = async () => {
+      if (!confirm("Are you sure you want to request deletion?")) return;
+
+      await fetch('/api/request_delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: currentAppointment.id,
+          requester: "client"
+        })
+      });
+      location.reload();
+    };
+    window.setSortOption = setSortOption;
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

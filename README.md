@@ -11,7 +11,7 @@ username: admin
 password: admin123
 
 for each client use password : *Cli123
-\nfor each lawyer use password: *Law1234
+for each lawyer use password: *Law1234
 
 new file created to sync entries from postgresql needed to be run in background on different terminal using command : "python sync_bookings_to_firebase.py"
 

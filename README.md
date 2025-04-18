@@ -2,6 +2,7 @@
 run below code to set up project
 1. pip install flask flask-session flask-mailman psycopg2 pandas nltk transformers werkzeug PyPDF2 docx google-generativeai python-dotenv
 2. python -c "import nltk; nltk.download('all');"
+3. keep running python sync_bookings_to_firebase.py in background
 
 admin page info:
 username: admin

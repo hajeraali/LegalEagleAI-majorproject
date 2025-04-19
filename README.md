@@ -1,4 +1,9 @@
 # LegalEagleAI-majorproject
+befor you run project please open postgresql pg admin and in query tab execute this query
+**ALTER TABLE public.clientappointments
+ADD COLUMN barcouncil_id VARCHAR(100);**
+
+
 run below code to set up project
 1. pip install flask flask-session flask-mailman psycopg2 pandas nltk transformers werkzeug PyPDF2 docx google-generativeai python-dotenv
 2. python -c "import nltk; nltk.download('all');"

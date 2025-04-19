@@ -1,5 +1,6 @@
 # LegalEagleAI-majorproject
 befor you run project please open postgresql pg admin and in query tab execute this query
+
 **ALTER TABLE public.clientappointments
 ADD COLUMN barcouncil_id VARCHAR(100);**
 

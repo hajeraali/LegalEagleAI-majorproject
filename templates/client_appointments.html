@@ -8,18 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-brown: #5D4037;
-            --light-brown: #8D6E63;
-            --cream: #FFF8E1;
-            --gold: #FFD700;
-            --dark-gold: #FFC107;
-            --shadow: 0 4px 20px rgba(93, 64, 55, 0.15);
+            --primary-blue: #5D8AA8;
+            --light-blue: #91A8D0;
+            --pastel-blue: #E6F2FF;
+            --accent-blue: #4B9CD3;
+            --dark-blue: #2C5E8B;
+            --shadow: 0 4px 20px rgba(45, 93, 138, 0.15);
         }
         
         body {
-            background: var(--cream);
+            background: var(--pastel-blue);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             padding: 20px;
         }
         
@@ -37,11 +37,11 @@
             background: white;
             border-radius: 12px;
             box-shadow: var(--shadow);
-            border-bottom: 3px solid var(--gold);
+            border-bottom: 3px solid var(--accent-blue);
         }
         
         .header h2 {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 700;
             margin: 0;
         }
@@ -52,24 +52,24 @@
             padding: 25px;
             box-shadow: var(--shadow);
             margin-bottom: 30px;
-            border-top: 4px solid var(--gold);
+            border-top: 4px solid var(--accent-blue);
         }
         
         .info-card h4 {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 1px dashed var(--light-brown);
+            border-bottom: 1px dashed var(--light-blue);
         }
         
         .info-card p {
             margin-bottom: 10px;
-            color: var(--light-brown);
+            color: var(--light-blue);
         }
         
         .info-card strong {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
         }
         
@@ -87,12 +87,12 @@
             padding: 25px;
             box-shadow: var(--shadow);
             transition: all 0.3s ease;
-            border-top: 4px solid var(--gold);
+            border-top: 4px solid var(--accent-blue);
         }
         
         .appointment-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(93, 64, 55, 0.2);
+            box-shadow: 0 10px 25px rgba(45, 93, 138, 0.2);
         }
         
         .appointment-card.expired {
@@ -106,7 +106,7 @@
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
             font-size: 3rem;
-            color: rgba(141, 110, 99, 0.1);
+            color: rgba(145, 168, 208, 0.1);
             font-weight: 900;
             pointer-events: none;
             z-index: 1;
@@ -118,22 +118,22 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px dashed var(--light-brown);
+            border-bottom: 1px dashed var(--light-blue);
         }
         
         .card-header strong {
             font-size: 1.3rem;
             font-weight: 600;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
         }
         
         .card-body p {
             margin-bottom: 12px;
-            color: var(--light-brown);
+            color: var(--light-blue);
         }
         
         .card-body strong {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
         }
         
@@ -149,12 +149,12 @@
         }
         
         .status-confirmed {
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
-            color: var(--primary-brown);
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary-blue));
+            color: white;
         }
         
         .status-pending {
-            background: linear-gradient(135deg, #FFC107, #FFA000);
+            background: linear-gradient(135deg, #91A8D0, #5D8AA8);
             color: white;
         }
         
@@ -173,7 +173,7 @@
             width: 30px;
             flex-grow: 0.5;
             border-radius: 8px;
-            border: 1px solid var(--light-brown);
+            border: 1px solid var(--light-blue);
             padding: 10px 15px;
         }
         
@@ -196,7 +196,7 @@
         .no-appointments {
             text-align: center;
             padding: 40px;
-            color: var(--light-brown);
+            color: var(--light-blue);
             background: white;
             border-radius: 12px;
             box-shadow: var(--shadow);
@@ -205,12 +205,12 @@
         
         .no-appointments i {
             font-size: 3rem;
-            color: var(--gold);
+            color: var(--accent-blue);
             margin-bottom: 15px;
         }
         
         .btn-secondary {
-            background: linear-gradient(135deg, var(--primary-brown), var(--light-brown));
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
             border: none;
             color: white;
             font-weight: 500;
@@ -224,16 +224,16 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary-blue));
             border: none;
-            color: var(--primary-brown);
+            color: white;
             font-weight: 600;
         }
         
         .search-bar .dropdown .btn {
             background: white;
-            border: 1px solid var(--light-brown);
-            color: var(--primary-brown);
+            border: 1px solid var(--light-blue);
+            color: var(--dark-blue);
         }
         
         .search-bar .dropdown-menu {
@@ -241,25 +241,127 @@
             border-radius: 8px;
             border: none;
             box-shadow: var(--shadow);
-            border-top: 3px solid var(--gold);
+            border-top: 3px solid var(--accent-blue);
         }
         
         .search-bar .dropdown-item {
             padding: 8px 16px;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
         }
         
         .search-bar .dropdown-item:hover {
-            background-color: var(--cream);
-            color: var(--primary-brown);
+            background-color: var(--pastel-blue);
+            color: var(--dark-blue);
         }
         
         .card-icon {
-            color: var(--gold);
+            color: var(--accent-blue);
             margin-right: 8px;
             width: 20px;
             text-align: center;
         }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+    
+        .appointment-card {
+            animation: cardEntrance 0.6s ease-out;
+            animation-fill-mode: backwards;
+        }
+    
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    
+        .hidden-card {
+            display: none;
+        }
+    
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+    
+        .page-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+    
+        .page-btn:hover {
+            background: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(44, 94, 139, 0.2);
+        }
+    
+        .page-btn:disabled {
+            background: var(--light-blue);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    
+        .page-info {
+            display: flex;
+            align-items: center;
+            color: var(--dark-blue);
+            font-weight: 500;
+        }
+
+        .appointment-card {
+            padding: 15px; /* Reduced from 25px */
+            min-height: 280px; /* Added fixed height */
+        }
+    
+        .card-container {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Reduced from 320px */
+        }
+    
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+    
+        .search-bar input {
+            flex-grow: 1;
+            border-radius: 8px;
+            padding: 8px 15px;
+        }
+    
+        .search-bar .btn {
+            padding: 8px 15px;
+        }
+    
+        /* New registration highlight */
+        .new-registration {
+            border: 2px solid var(--accent-blue);
+            animation: pulseHighlight 2s ease-in-out;
+        }
+    
+        @keyframes pulseHighlight {
+            0% { box-shadow: 0 0 0 0 rgba(77, 156, 211, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(77, 156, 211, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(77, 156, 211, 0); }
+        }
+    
     </style>
 </head>
 <body>

@@ -8,19 +8,19 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     :root {
-      --primary-brown: #5D4037;
-      --light-brown: #8D6E63;
-      --cream: #FFF8E1;
-      --gold: #FFD700;
-      --dark-gold: #FFC107;
-      --shadow: 0 4px 20px rgba(93, 64, 55, 0.15);
+      --primary-blue: #5D8AA8;
+      --light-blue: #91A8D0;
+      --pastel-blue: #E6F2FF;
+      --accent-blue: #4B9CD3;
+      --dark-blue: #2C5E8B;
+      --shadow: 0 4px 20px rgba(45, 93, 138, 0.15);
     }
     
     body {
-      background: var(--cream);
+      background: var(--pastel-blue);
       font-family: 'Segoe UI', sans-serif;
       padding: 20px;
-      color: var(--primary-brown);
+      color: var(--dark-blue);
     }
     
     .header {
@@ -32,24 +32,25 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid var(--gold);
+      border-bottom: 3px solid var(--accent-blue);
     }
     
     .header h1 {
       margin: 0;
-      color: var(--primary-brown);
+      color: var(--dark-blue);
       font-weight: 700;
     }
     
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary-brown), var(--light-brown));
+      background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
       border: none;
       font-weight: 500;
+      color: white;
     }
     
     .card-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
     }
     
@@ -60,12 +61,13 @@
       padding: 20px;
       box-shadow: var(--shadow);
       transition: all 0.3s ease;
-      border-top: 4px solid var(--gold);
+      border-top: 4px solid var(--accent-blue);
+      animation: fadeInUp 0.6s ease-out;
     }
     
     .appointment-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(93, 64, 55, 0.2);
+      box-shadow: 0 10px 25px rgba(45, 93, 138, 0.2);
     }
     
     .appointment-card.expired {
@@ -79,7 +81,7 @@
       left: 50%;
       transform: translate(-50%, -50%) rotate(-45deg);
       font-size: 3rem;
-      color: rgba(100, 100, 100, 0.15);
+      color: rgba(145, 168, 208, 0.15);
       font-weight: 900;
       pointer-events: none;
       z-index: 1;
@@ -91,7 +93,7 @@
       align-items: center;
       margin-bottom: 15px;
       padding-bottom: 15px;
-      border-bottom: 1px dashed var(--light-brown);
+      border-bottom: 1px dashed var(--light-blue);
     }
     
     .card-header strong {
@@ -100,24 +102,24 @@
       text-align: center;
       font-size: 1.3rem;
       font-weight: 600;
-      color: var(--primary-brown);
+      color: var(--dark-blue);
     }
     
     .modal-content {
       border-radius: 12px;
       border: none;
-      box-shadow: 0 10px 30px rgba(93, 64, 55, 0.2);
-      border-top: 4px solid var(--gold);
+      box-shadow: 0 10px 30px rgba(45, 93, 138, 0.2);
+      border-top: 4px solid var(--accent-blue);
     }
     
     .modal-header {
-      border-bottom: 1px dashed var(--light-brown);
-      background: var(--cream);
+      border-bottom: 1px dashed var(--light-blue);
+      background: var(--pastel-blue);
       border-radius: 12px 12px 0 0;
     }
     
     .modal-title {
-      color: var(--primary-brown);
+      color: var(--dark-blue);
       font-weight: 600;
     }
     
@@ -134,18 +136,30 @@
     }
     
     .btn-warning {
-      background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+      background: linear-gradient(135deg, var(--accent-blue), var(--primary-blue));
       border: none;
-      color: var(--primary-brown);
+      color: white;
       font-weight: 500;
     }
-    .dropdown{
+    
+    .dropdown {
       margin-bottom: 20px;
       flex-direction: row-reverse;
       display: flex;
       position: relative;
     }
-  </style>
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+</style>
 </head>
 <body>
   <!-- Original HTML content remains exactly the same -->

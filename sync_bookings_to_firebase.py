@@ -6,13 +6,13 @@ from firebase_admin import credentials, db
 from dotenv import load_dotenv
 from datetime import datetime
 
-# Load environment variables
-load_dotenv()
-
 # Set up logging
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Load environment variables
+load_dotenv()
 
 # Firebase initialization
 def initialize_firebase():
@@ -35,22 +35,6 @@ def get_postgres_connection():
     except psycopg2.Error as e:
         logger.error(f"PostgreSQL connection error: {e}")
         raise
-
-# Get the last sync timestamp
-def get_last_sync_time(firebase_ref):
-    try:
-        last_sync = firebase_ref.child("_last_sync").get()
-        return datetime.fromisoformat(last_sync) if last_sync else None
-    except Exception as e:
-        logger.error(f"Error getting last sync time: {e}")
-        return None
-
-# Set the last sync timestamp
-def set_last_sync_time(firebase_ref, sync_time):
-    try:
-        firebase_ref.child("_last_sync").set(sync_time.isoformat())
-    except Exception as e:
-        logger.error(f"Error setting last sync time: {e}")
 
 # Remove duplicate bookings with same ID
 def remove_redundant_entries():
@@ -75,7 +59,7 @@ def remove_redundant_entries():
             else:
                 seen_ids[appt_id] = key
 
-# Sync new PostgreSQL bookings to Firebase
+# Sync all PostgreSQL bookings to Firebase
 def sync_bookings():
     initialize_firebase()
     firebase_ref = db.reference('bookings')
@@ -88,32 +72,20 @@ def sync_bookings():
             conn = get_postgres_connection()
             cursor = conn.cursor()
 
-            last_sync = get_last_sync_time(firebase_ref)
+            # No time filtering – sync everything
+            query = """
+            SELECT id, appointment_date, client_name, client_email, 
+                   appointment_time, case_details, lawyer_name, barcouncil_id
+            FROM clientappointments
+            ORDER BY appointment_date, appointment_time
+            """
+            cursor.execute(query)
+            all_bookings = cursor.fetchall()
 
-            if last_sync:
-                query = """
-                SELECT id, appointment_date, client_name, client_email, 
-                       appointment_time, case_details, lawyer_name, barcouncil_id
-                FROM clientappointments
-                WHERE (appointment_date || ' ' || appointment_time)::timestamp > %s
-                ORDER BY appointment_date, appointment_time
-                """
-                cursor.execute(query, (last_sync,))
-            else:
-                query = """
-                SELECT id, appointment_date, client_name, client_email, 
-                       appointment_time, case_details, lawyer_name, barcouncil_id
-                FROM clientappointments
-                ORDER BY appointment_date, appointment_time
-                """
-                cursor.execute(query)
+            if all_bookings:
+                logger.info(f"Found {len(all_bookings)} bookings to sync")
 
-            new_bookings = cursor.fetchall()
-
-            if new_bookings:
-                logger.info(f"Found {len(new_bookings)} new bookings to sync")
-
-                for booking in new_bookings:
+                for booking in all_bookings:
                     booking_id, appointment_date, client_name, client_email, \
                     appointment_time, case_details, lawyer_name, barcouncil_id = booking
 
@@ -152,13 +124,8 @@ def sync_bookings():
                     except Exception as e:
                         logger.error(f"Failed to sync booking {booking_id}: {e}")
 
-                # Update last sync time
-                latest_booking = new_bookings[-1]
-                latest_time = datetime.combine(latest_booking[1], latest_booking[4])
-                set_last_sync_time(firebase_ref, latest_time)
-
             else:
-                logger.info("No new bookings to sync")
+                logger.info("No bookings found to sync")
 
             cursor.close()
             conn.close()

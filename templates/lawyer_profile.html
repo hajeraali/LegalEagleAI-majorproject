@@ -9,18 +9,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-brown: #5D4037;
-            --light-brown: #8D6E63;
-            --cream: #FFF8E1;
-            --gold: #FFD700;
-            --dark-gold: #FFC107;
-            --shadow: 0 4px 20px rgba(93, 64, 55, 0.15);
+            --primary-blue: #5D8AA8;
+            --light-blue: #91A8D0;
+            --pastel-blue: #E6F2FF;
+            --accent-blue: #4B9CD3;
+            --dark-blue: #2C5E8B;
+            --shadow: 0 4px 20px rgba(45, 93, 138, 0.15);
         }
         
         body {
-            background: var(--cream);
+            background: var(--pastel-blue);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             padding: 20px;
         }
         
@@ -38,11 +38,11 @@
             background: white;
             border-radius: 12px;
             box-shadow: var(--shadow);
-            border-bottom: 3px solid var(--gold);
+            border-bottom: 3px solid var(--accent-blue);
         }
         
         .header h2 {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 700;
             margin: 0;
         }
@@ -57,7 +57,7 @@
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 20px;
-            border: 5px solid var(--cream);
+            border: 5px solid var(--pastel-blue);
             box-shadow: var(--shadow);
         }
         
@@ -67,22 +67,22 @@
             padding: 25px;
             box-shadow: var(--shadow);
             margin-bottom: 30px;
-            border-top: 4px solid var(--gold);
+            border-top: 4px solid var(--accent-blue);
         }
         
         .info-card h3, .info-card h4 {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
             margin-bottom: 20px;
         }
         
         .info-card p {
             margin-bottom: 5px;
-            color: var(--light-brown);
+            color: var(--light-blue);
         }
         
         .info-card strong {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
         }
         
@@ -95,9 +95,9 @@
         .professional-details p {
             margin-bottom: 0;
             padding: 12px;
-            background: var(--cream);
+            background: var(--pastel-blue);
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(93, 64, 55, 0.05);
+            box-shadow: 0 2px 5px rgba(45, 93, 138, 0.05);
         }
         
         .card-container {
@@ -114,12 +114,12 @@
             padding: 25px;
             box-shadow: var(--shadow);
             transition: all 0.3s ease;
-            border-top: 4px solid var(--gold);
+            border-top: 4px solid var(--accent-blue);
         }
         
         .appointment-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(93, 64, 55, 0.2);
+            box-shadow: 0 10px 25px rgba(45, 93, 138, 0.2);
         }
         
         .appointment-card.expired {
@@ -133,7 +133,7 @@
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
             font-size: 3rem;
-            color: rgba(141, 110, 99, 0.1);
+            color: rgba(145, 168, 208, 0.1);
             font-weight: 900;
             pointer-events: none;
             z-index: 1;
@@ -145,22 +145,22 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px dashed var(--light-brown);
+            border-bottom: 1px dashed var(--light-blue);
         }
         
         .card-header strong {
             font-size: 1.3rem;
             font-weight: 600;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
         }
         
         .card-body p {
             margin-bottom: 12px;
-            color: var(--light-brown);
+            color: var(--light-blue);
         }
         
         .card-body strong {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
         }
         
@@ -174,7 +174,7 @@
             width: 30px;
             flex-grow: 0.5;
             border-radius: 8px;
-            border: 1px solid var(--light-brown);
+            border: 1px solid var(--light-blue);
             padding: 10px 15px;
         }
         
@@ -198,7 +198,7 @@
         .no-appointments {
             text-align: center;
             padding: 40px;
-            color: var(--light-brown);
+            color: var(--light-blue);
             background: white;
             border-radius: 12px;
             box-shadow: var(--shadow);
@@ -207,12 +207,12 @@
         
         .no-appointments i {
             font-size: 3rem;
-            color: var(--gold);
+            color: var(--accent-blue);
             margin-bottom: 15px;
         }
         
         .btn-secondary {
-            background: linear-gradient(135deg, var(--primary-brown), var(--light-brown));
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
             border: none;
             color: white;
             font-weight: 500;
@@ -226,16 +226,16 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary-blue));
             border: none;
-            color: var(--primary-brown);
+            color: white;
             font-weight: 600;
         }
         
         .search-bar .dropdown .btn {
             background: white;
-            border: 1px solid var(--light-brown);
-            color: var(--primary-brown);
+            border: 1px solid var(--light-blue);
+            color: var(--dark-blue);
         }
         
         .search-bar .dropdown-menu {
@@ -243,21 +243,21 @@
             border-radius: 8px;
             border: none;
             box-shadow: var(--shadow);
-            border-top: 3px solid var(--gold);
+            border-top: 3px solid var(--accent-blue);
         }
         
         .search-bar .dropdown-item {
             padding: 8px 16px;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
         }
         
         .search-bar .dropdown-item:hover {
-            background-color: var(--cream);
-            color: var(--primary-brown);
+            background-color: var(--pastel-blue);
+            color: var(--dark-blue);
         }
         
         .card-icon {
-            color: var(--gold);
+            color: var(--accent-blue);
             margin-right: 8px;
             width: 20px;
             text-align: center;
@@ -265,6 +265,70 @@
         
         .text-center {
             text-align: center;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+    
+        .appointment-card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: backwards;
+        }
+    
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+        .hidden-card {
+            display: none;
+        }
+    
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+            animation: fadeIn 0.6s ease-out;
+        }
+    
+        .page-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+    
+        .page-btn:hover {
+            background: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(44, 94, 139, 0.2);
+        }
+    
+        .page-btn:disabled {
+            background: var(--light-blue);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    
+        .page-info {
+            display: flex;
+            align-items: center;
+            color: var(--dark-blue);
+            font-weight: 500;
         }
     </style>
 </head>

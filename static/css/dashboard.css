@@ -4,27 +4,35 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-P{
+p {
     font-size: medium;
+    margin: 0;
 }
 
 .container {
     display: flex;
     width: 100%;
-    margin-top: 8%; /* Push content below navbar */
+    margin-top: 8%;
     max-width: 85%;
+    flex: 1;
+    gap: 20px;
 }
 
 .sidebar {
     width: 25%;
-    height: 56%;
     background-color: #c38d35;
     color: white;
     text-align: center;
     padding: 20px;
     border-radius: 2px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
 }
 
 .profile-pic {
@@ -33,28 +41,67 @@ P{
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid white;
+    margin: 0 auto;
 }
 
 .main-content {
-    width: 75%;
-    padding-left: 20px;
-    padding-right: 20px;
-    height: 100%;
+    flex: 1;
+    padding: 20px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
 }
 
-.info-section {
-    background: white;
+.content-section {
+    margin-bottom: 30px;
+}
+
+.content-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #c38d35;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.info-card {
+    background: #f9f9f9;
     padding: 15px;
-    margin: 10px 0;
     border-radius: 5px;
-    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
+}
+
+.info-card strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.info-card span {
+    color: #666;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
 }
 
 .sidebar-menu {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .menu-item {
@@ -63,22 +110,23 @@ P{
     justify-content: space-between;
     background: white;
     color: black;
-    padding: 10px;
-    margin: 10px 0;
+    padding: 12px;
     border-radius: 5px;
-    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .menu-item:hover {
     background: #f1f1f1;
+    transform: translateX(3px);
 }
 
 .icon {
     margin-right: 10px;
 }
 
-/* Modal container */
+/* Modal styles remain unchanged */
 .modal {
     display: none;
     position: fixed;
@@ -89,9 +137,9 @@ P{
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
+    z-index: 1000;
 }
 
-/* Modal content box with hidden scrollbar */
 .modal-content {
     background: white;
     padding: 20px;
@@ -99,28 +147,25 @@ P{
     max-width: 70%;
     height: 90%;
     text-align: center;
-    overflow-y: auto; /* Enables vertical scrolling if content overflows */
-    scrollbar-width: none; /* Hide scrollbar for Firefox */
-    -ms-overflow-style: none; /* Hide scrollbar for Internet Explorer */
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
 .modal-content::-webkit-scrollbar {
     display: none;
 }
 
-/* Form styling */
 .modal-content form {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.modal-content h3{
+.modal-content h3 {
     margin-top: 5%;
 }
 
-/* Labels */
 .modal-content label {
     font-weight: bold;
     text-align: left;
@@ -130,8 +175,8 @@ P{
     color: #333;
 }
 
-/* Input fields */
-.modal-content input, select {
+.modal-content input, 
+.modal-content select {
     width: 80%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -141,20 +186,18 @@ P{
     transition: all 0.3s ease;
 }
 
-/* Focus effect */
-.modal-content input:focus, select:focus {
+.modal-content input:focus, 
+.modal-content select:focus {
     border-color: #c38d35;
     box-shadow: 0px 0px 5px rgba(195, 141, 53, 0.5);
 }
 
-/* Disabled input fields (Email & Bar Council ID) */
 .modal-content input:disabled {
     background-color: #f5f5f5;
     color: #666;
     cursor: not-allowed;
 }
 
-/* Submit button */
 .modal-content button {
     background-color: #c38d35;
     color: white;
@@ -169,40 +212,52 @@ P{
     font-weight: bold;
 }
 
-/* Button hover effect */
 .modal-content button:hover {
     background-color: #a3742c;
 }
 
-/* Responsive design */
-@media screen and (max-width: 768px) {
-    .modal-content {
-        width: 90%;
-        height: 80%;
-        padding: 15px;
-    }
-
-    .modal-content label,
-    .modal-content input,
-    .modal-content button {
-        width: 80%;
-    }
-}
-
-
-button {
-    background-color: #c38d35;
+/* Button styles */
+.btn-primary {
+    background-color: rgb(0, 41, 107);
     color: white;
-    padding: 10px;
-    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-align: center;
+    display: block;
+    margin-top: 15px;
+    width: 100%;
+    transition: all 0.2s ease;
 }
 
-.close {
-    position: absolute;
-    right: 10%;
-    top: 8%;
-    font-size: 30px;
-    cursor: pointer;
-    color: #000000;
+.btn-primary:hover {
+    background-color: rgb(0, 30, 80);
+    transform: translateY(-2px);
 }
 
+/* Responsive design */
+@media screen and (max-width: 992px) {
+    .container {
+        flex-direction: column;
+        max-width: 95%;
+    }
+    
+    .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .content-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        max-width: 90%;
+        height: 85%;
+    }
+}

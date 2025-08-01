@@ -9,18 +9,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         :root {
-            --primary-brown: #5D4037;
-            --light-brown: #8D6E63;
-            --cream: #FFF8E1;
-            --gold: #FFD700;
-            --dark-gold: #FFC107;
-            --shadow: 0 4px 20px rgba(93, 64, 55, 0.15);
+            --primary-blue: #5D8AA8;
+            --light-blue: #91A8D0;
+            --pastel-blue: #E6F2FF;
+            --accent-blue: #4B9CD3;
+            --dark-blue: #2C5E8B;
+            --shadow: 0 4px 20px rgba(45, 93, 138, 0.15);
         }
         
         body {
-            background: var(--cream);
+            background: var(--pastel-blue);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
         }
         
         .container {
@@ -35,11 +35,23 @@
             border-radius: 12px;
             box-shadow: var(--shadow);
             margin-bottom: 30px;
-            border-bottom: 3px solid var(--gold);
+            border-bottom: 3px solid var(--accent-blue);
+            animation: fadeInDown 0.6s ease-out;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .dashboard-title {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 700;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
@@ -58,14 +70,27 @@
             padding: 25px;
             box-shadow: var(--shadow);
             transition: all 0.3s ease;
-            border-top: 4px solid var(--gold);
+            border-top: 4px solid var(--accent-blue);
             position: relative;
             overflow: hidden;
+            animation: cardEntrance 0.6s ease-out;
+            animation-fill-mode: backwards;
+        }
+        
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
         
         .user-card:hover, .lawyer-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(93, 64, 55, 0.2);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(45, 93, 138, 0.2);
         }
         
         .user-card::before, .lawyer-card::before {
@@ -75,7 +100,7 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: linear-gradient(90deg, var(--gold), var(--dark-gold));
+            background: linear-gradient(90deg, var(--accent-blue), var(--primary-blue));
         }
         
         .card-header {
@@ -84,14 +109,14 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px dashed var(--light-brown);
+            border-bottom: 1px dashed var(--light-blue);
         }
         
         .card-header h5 {
             margin: 0;
             font-size: 1.3rem;
             font-weight: 600;
-            color: var(--primary-brown);
+            color: var(--dark-blue);
         }
         
         .badge {
@@ -104,7 +129,7 @@
         }
         
         .badge-pending {
-            background: linear-gradient(135deg, #FFC107, #FFA000);
+            background: linear-gradient(135deg, #91A8D0, #5D8AA8);
             color: white;
         }
         
@@ -115,12 +140,12 @@
         
         .card-body p {
             margin-bottom: 10px;
-            color: var(--light-brown);
+            color: var(--light-blue);
             font-size: 0.95rem;
         }
         
         .card-body strong {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
         }
         
@@ -140,9 +165,9 @@
         }
         
         .btn-approve {
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary-blue));
             border: none;
-            color: var(--primary-brown);
+            color: white;
         }
         
         .btn-danger {
@@ -159,11 +184,17 @@
         .section-header {
             margin: 40px 0 20px 0;
             padding-bottom: 10px;
-            border-bottom: 2px solid var(--gold);
-            color: var(--primary-brown);
+            border-bottom: 2px solid var(--accent-blue);
+            color: var(--dark-blue);
             font-weight: 600;
             font-size: 1.5rem;
             position: relative;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .section-header::after {
@@ -173,49 +204,62 @@
             left: 0;
             width: 100px;
             height: 3px;
-            background: var(--primary-brown);
+            background: var(--dark-blue);
         }
         
         /* Tabs */
         .nav-tabs {
-            border-bottom: 2px solid var(--light-brown);
+            border-bottom: 2px solid var(--light-blue);
             margin-bottom: 30px;
         }
         
         .nav-tabs .nav-link {
-            color: var(--light-brown);
+            color: var(--light-blue);
             font-weight: 500;
             border: none;
             padding: 12px 25px;
             margin-right: 5px;
+            transition: all 0.3s;
         }
         
         .nav-tabs .nav-link.active {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
-            background: var(--gold);
-            border-bottom: 3px solid var(--gold);
+            background: var(--accent-blue);
+            border-bottom: 3px solid var(--accent-blue);
         }
         
         /* Modal Styles */
         .modal-content {
             border-radius: 12px;
             border: none;
-            box-shadow: 0 10px 30px rgba(93, 64, 55, 2.2);
-            border-top: 4px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(45, 93, 138, 0.2);
+            border-top: 4px solid var(--accent-blue);
             width: 30%;
             top: 40%;
             left: 35%;
+            animation: modalEntrance 0.4s ease-out;
+        }
+        
+        @keyframes modalEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .modal-header {
-            border-bottom: 1px dashed var(--light-brown);
-            background: var(--cream);
+            border-bottom: 1px dashed var(--light-blue);
+            background: var(--pastel-blue);
             border-radius: 12px 12px 0 0;
         }
         
         .modal-title {
-            color: var(--primary-brown);
+            color: var(--dark-blue);
             font-weight: 600;
         }
         
@@ -226,49 +270,210 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 248, 225, 0.9);
+            background-color: rgba(230, 242, 255, 0.9);
             backdrop-filter: blur(5px);
             z-index: 999;
             display: none;
+            animation: fadeIn 0.5s ease-out;
         }
         
         /* Icons */
         .card-icon {
-            color: var(--gold);
+            color: var(--accent-blue);
             margin-right: 8px;
             width: 20px;
             text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .btn:hover .card-icon {
+            transform: translateX(3px);
         }
         
         /* Logout Button */
         .btn-logout {
-            background: linear-gradient(135deg, var(--primary-brown), var(--light-brown));
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
             border: none;
             color: white;
             font-weight: 500;
             padding: 8px 20px;
             border-radius: 8px;
+            transition: all 0.3s;
         }
         
         .btn-logout:hover {
             color: white;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(44, 94, 139, 0.2);
         }
         
         /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px;
-            color: var(--light-brown);
+            color: var(--light-blue);
             background: white;
             border-radius: 12px;
             box-shadow: var(--shadow);
+            animation: fadeIn 0.8s ease-out;
+            grid-column: 1 / -1;
         }
         
         .empty-state i {
             font-size: 3rem;
-            color: var(--gold);
+            color: var(--accent-blue);
             margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Pagination Controls */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .page-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .page-btn:hover {
+            background: var(--primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(44, 94, 139, 0.2);
+        }
+        
+        .page-btn:disabled {
+            background: var(--light-blue);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        .page-info {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            color: var(--dark-blue);
+        }
+        
+        /* Hidden cards */
+        .hidden-card {
+            display: none;
+            animation: fadeOut 0.3s ease-out;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(91, 168, 208, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s ease-in-out infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes staggeredCardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+        /* Update the cardEntrance animation */
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    
+        /* Add this new animation for the pagination */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Add these to the existing styles */
+        .user-card, .lawyer-card {
+            padding: 15px; /* Reduced from 25px */
+            min-height: 220px; /* Added fixed height */
+        }
+    
+        .card-container {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Reduced from 320px */
+        }
+    
+        /* Search bar styles */
+        .admin-search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+    
+        .admin-search-container input {
+            flex-grow: 1;
+            max-width: 300px;
+            border-radius: 8px;
+            padding: 8px 15px;
+        }
+    
+        .admin-search-container .dropdown-toggle {
+            padding: 8px 15px;
+        }
+    
+        /* New registration highlight */
+        .new-registration {
+            border: 2px solid var(--accent-blue);
+            animation: pulseHighlight 2s ease-in-out;
+        }
+    
+        /* Filter dropdown styles */
+        .filter-dropdown .dropdown-menu {
+            min-width: 200px;
+            padding: 10px;
+        }
+    
+        .filter-dropdown .dropdown-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 2px 0;
         }
     </style>
 </head>
@@ -277,6 +482,23 @@
         <div class="dashboard-header d-flex justify-content-between align-items-center">
             <h1 class="dashboard-title"><i class="fas fa-gavel me-2"></i>Admin Dashboard</h1>
             <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+        </div>
+        <div class="admin-search-container">
+            <input type="text" id="adminSearchInput" class="form-control" placeholder="Search users/lawyers...">
+            <button class="btn btn-primary" onclick="searchAdminDashboard()">
+                <i class="fas fa-search me-2"></i>Search
+            </button>
+            <div class="dropdown filter-dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="adminFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="adminFilterDropdown">
+                    <li><a class="dropdown-item" href="#" onclick="filterByStatus('all')"><i class="fas fa-list me-2"></i>All</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="filterByStatus('new')"><i class="fas fa-star me-2"></i>New Registrations</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="filterByStatus('pending')"><i class="fas fa-clock me-2"></i>Pending</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="filterByStatus('approved')"><i class="fas fa-check-circle me-2"></i>Approved</a></li>
+                </ul>
+            </div>
         </div>
 
         <!-- Admin Login Modal -->
@@ -315,13 +537,25 @@
                         <!-- Pending Lawyers -->
                         <h3 class="section-header"><i class="fas fa-clock me-2"></i>Pending Lawyers</h3>
                         <div class="card-container" id="pending-lawyer-list">
-                            <!-- Pending lawyers will be loaded here as cards -->
+                            <!-- Loading spinner will appear here temporarily -->
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <div class="pagination-controls" id="pending-lawyer-pagination" style="display: none;">
+                            <button class="page-btn prev-btn" onclick="prevPage('pending-lawyer')">Previous</button>
+                            <span class="page-info">Page 1 of 1</span>
+                            <button class="page-btn next-btn" onclick="nextPage('pending-lawyer')">Next</button>
                         </div>
 
                         <!-- Approved Lawyers -->
                         <h3 class="section-header"><i class="fas fa-check-circle me-2"></i>Approved Lawyers</h3>
                         <div class="card-container" id="approved-lawyer-list">
-                            <!-- Approved lawyers will be loaded here as cards -->
+                            <!-- Loading spinner will appear here temporarily -->
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <div class="pagination-controls" id="approved-lawyer-pagination" style="display: none;">
+                            <button class="page-btn prev-btn" onclick="prevPage('approved-lawyer')">Previous</button>
+                            <span class="page-info">Page 1 of 1</span>
+                            <button class="page-btn next-btn" onclick="nextPage('approved-lawyer')">Next</button>
                         </div>
                     </div>
                 </div>
@@ -333,7 +567,13 @@
                     <div class="users-section">
                         <h3 class="section-header"><i class="fas fa-user-friends me-2"></i>Users</h3>
                         <div class="card-container" id="user-list">
-                            <!-- Users will be loaded here as cards -->
+                            <!-- Loading spinner will appear here temporarily -->
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <div class="pagination-controls" id="user-pagination" style="display: none;">
+                            <button class="page-btn prev-btn" onclick="prevPage('user')">Previous</button>
+                            <span class="page-info">Page 1 of 1</span>
+                            <button class="page-btn next-btn" onclick="nextPage('user')">Next</button>
                         </div>
                     </div>
                 </div>
@@ -382,6 +622,13 @@
         let selectedLawyerId = null;
         let selectedLawyerIdForDelete = null;
         let refreshInterval;
+        
+        // Pagination state for each section
+        const paginationState = {
+            'pending-lawyer': { currentPage: 1, totalPages: 1 },
+            'approved-lawyer': { currentPage: 1, totalPages: 1 },
+            'user': { currentPage: 1, totalPages: 1 }
+        };
         
         // Add blur overlay before login
         $('body').append('<div id="login-overlay"></div>');
@@ -437,7 +684,7 @@
                 // Close the tab after a short delay to ensure logout completes
                 setTimeout(() => {
                     window.close(); // This will attempt to close the tab
-                }, 5000);
+                }, 3500);
             }).fail(function() {
                 // If logout fails, still try to close the tab
                 window.close();
@@ -546,11 +793,112 @@
             }
         }
         
+        function updatePaginationControls(section) {
+            const state = paginationState[section];
+            const paginationDiv = $(`#${section}-pagination`);
+            const pageInfo = paginationDiv.find('.page-info');
+            
+            pageInfo.text(`Page ${state.currentPage} of ${state.totalPages}`);
+            
+            // Update button states
+            paginationDiv.find('.prev-btn').prop('disabled', state.currentPage === 1);
+            paginationDiv.find('.next-btn').prop('disabled', state.currentPage === state.totalPages);
+            
+            // Show pagination if needed
+            if (state.totalPages > 1) {
+                paginationDiv.show();
+            } else {
+                paginationDiv.hide();
+            }
+        }
+        
+        function showPage(section, page) {
+            const container = $(`#${section}-list`);
+            const cards = container.children('.user-card, .lawyer-card');
+            const totalCards = cards.length;
+            const cardsPerPage = 6;
+            const totalPages = Math.ceil(totalCards / cardsPerPage);
+            
+            // Update pagination state
+            paginationState[section] = {
+                currentPage: page,
+                totalPages: totalPages
+            };
+            updatePaginationControls(section);
+            
+            // Calculate range of cards to show
+            const startIndex = (page - 1) * cardsPerPage;
+            const endIndex = Math.min(startIndex + cardsPerPage, totalCards);
+            
+            // Hide all cards first with animation
+            cards.addClass('hidden-card');
+            cards.css('display', 'none');
+            
+            // Show cards for current page with staggered animation
+            for (let i = startIndex; i < endIndex; i++) {
+                setTimeout(() => {
+                    const card = cards.eq(i);
+                    card.removeClass('hidden-card');
+                    card.css({
+                        'display': 'block',
+                        'animation': 'cardEntrance 0.6s ease-out'
+                    });
+                }, (i - startIndex) * 100); // Staggered animation delay
+            }
+        }
+        
+        function nextPage(section) {
+            const state = paginationState[section];
+            if (state.currentPage < state.totalPages) {
+                showPage(section, state.currentPage + 1);
+            }
+        }
+        
+        function prevPage(section) {
+            const state = paginationState[section];
+            if (state.currentPage > 1) {
+                showPage(section, state.currentPage - 1);
+            }
+        }
+
+        function searchAdminDashboard() {
+            const searchTerm = $("#adminSearchInput").val().toLowerCase();
+            $(".user-card, .lawyer-card").each(function() {
+                const cardText = $(this).text().toLowerCase();
+                $(this).toggle(cardText.includes(searchTerm));
+            });
+        }
+        
+        function filterByStatus(status) {
+            const today = new Date();
+            const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            $(".user-card, .lawyer-card").each(function() {
+                const isNew = new Date($(this).data('registration-date')) > oneWeekAgo;
+                const isPending = $(this).find('.badge-pending').length > 0;
+                const isApproved = $(this).find('.badge-approved').length > 0;
+                
+                if (status === 'all') {
+                    $(this).show();
+                } else if (status === 'new' && isNew) {
+                    $(this).show();
+                } else if (status === 'pending' && isPending) {
+                    $(this).show();
+                } else if (status === 'approved' && isApproved) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+        
+        
         function loadDashboard() {
             $.get("/registered_users", function(data) {
                 // Display Users as Cards
                 let userList = $("#user-list");
                 userList.empty();
+                
                 if (data.users && Object.keys(data.users).length > 0) {
                     Object.entries(data.users).forEach(([id, user]) => {
                         if (!user.email || !user.username) {
@@ -583,6 +931,9 @@
                             `);
                         }
                     });
+                    
+                    // Initialize pagination for users
+                    showPage('user', 1);
                 } else {
                     userList.html(`
                         <div class="empty-state w-100">
@@ -591,6 +942,7 @@
                             <p>There are currently no registered users</p>
                         </div>
                     `);
+                    $('#user-pagination').hide();
                 }
 
                 // Display Lawyers as Cards
@@ -638,6 +990,10 @@
                             pendingLawyersList.append(lawyerCard);
                         }
                     });
+                    
+                    // Initialize pagination for lawyers
+                    showPage('pending-lawyer', 1);
+                    showPage('approved-lawyer', 1);
                 } else {
                     approvedLawyersList.html(`
                         <div class="empty-state w-100">
@@ -653,6 +1009,8 @@
                             <p>There are currently no lawyers awaiting approval</p>
                         </div>
                     `);
+                    $('#pending-lawyer-pagination').hide();
+                    $('#approved-lawyer-pagination').hide();
                 }
             });
         }
